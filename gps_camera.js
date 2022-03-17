@@ -16,16 +16,35 @@ let gpsMain=
         cubeTestPivote: "",
         rotateCameraZ : new THREE.Vector3( 0, 0, - 1 ),
         /* 
-        test coordinates
+        test coordinates mi casa
         */
+       /*
         testCoordinates: [
-            {latitude:19.360040, longitude: -98.980148},
-            {latitude:19.359795, longitude:-98.980204},
-            {latitude:19.359825, longitude:-98.980576},
-            {latitude:19.359857, longitude:-98.980727},
-            {latitude:19.359891, longitude:-98.980932},
-            {latitude:19.359904, longitude:-98.980599}],
-            
+            {latitude:19.359886, longitude: -98.980933},//avind-hora
+            {latitude:19.359337, longitude:-98.980989}, //avind-pueb
+            {latitude:19.359141, longitude:-98.979514}, //avsim-pueb
+            {latitude:19.359719, longitude: -98.979399}], //avsim-hora
+            // {latitude:19.359891, longitude:-98.980932},
+            // {latitude:19.359904, longitude:-98.980599}],
+          */  
+           
+        testCoordinates1:[   {"latitude":27.4995,"longitude":-82.556286},
+                            {"latitude":27.499451,"longitude":-82.556323},
+                            {"latitude":27.49934,"longitude":-82.556339},
+                            {"latitude":27.499279,"longitude":-82.556341},
+                            {"latitude":27.499276,"longitude":-82.556388},
+                            {"latitude":27.499306,"longitude":-82.556427},
+                            {"latitude":27.499476,"longitude":-82.556384},
+                            {"lalatitudet":27.499545,"longitude":-82.556325}],
+        
+        testCoordinates2:[  {"latitude":27.499668,"longitude":-82.556634},
+                            {"latitude":27.499621,"longitude":-82.556744},
+                            {"latitude":27.499523,"longitude":-82.556771},
+                            {"latitude":27.499481,"longitude":-82.556701},
+                            {"latitude":27.499533,"longitude":-82.556579},
+                            {"latitude":27.499628,"longitude":-82.556555}],
+
+        
     SetCameraGps: function ()
     {
             if (navigator.geolocation) {
@@ -84,6 +103,100 @@ let gpsMain=
     //     console.log(cube.rotation)
 
     // },
+    checkCalibrado :false,
+    poligonosCreados : false,
+    i:0.0, // borrar
+    updateRotation(transform)
+    {
+        var heading =360- gpsMain.heading;
+        gpsMain.cubeRF.lookAt(transform.position.x, gpsMain.cubeRF.position.y,transform.position.z)
+        gpsMain.cubeRF.position.set(gpsMain.pose.transform.position.x,gpsMain.cubeRF.position.y,gpsMain.pose.transform.position.z)
+        
+        var camaraRotationY =gpsMain.toAngle(gpsMain.angleMagnitude(gpsMain.cubeRF.quaternion).y)
+        camaraRotationY = gpsMain.normalizeAngle0_360(camaraRotationY)
+        let offset =  gpsMain.normalizeAngle0_360(heading+camaraRotationY)
+        
+        let difHeading = gpsMain.angulo180(gpsMain.heading)
+        let difCamara = (camaraRotationY) //eje z
+        let dif = difCamara +difHeading
+        
+        document.getElementById("Test").innerHTML = difHeading
+        document.getElementById("Test2").innerHTML = difCamara
+        document.getElementById("Test3").innerHTML = dif
+        if (!gpsMain.checkCalibrado)
+        {
+            gpsMain.pivote.rotation.set(0,(dif)* Math.PI/180,0)
+            gpsMain.pivote.position.set(gpsMain.pose.transform.position.x,gpsMain.pivote.position.y,gpsMain.pose.transform.position.z)         
+        }else
+        {
+
+        }
+    },
+    angulo180(x)
+    {
+        if (x<180)
+        {
+            return x
+        }else
+        {
+            return x-360
+        }
+    },
+    /**
+     * Axis with angle magnitude (radians) [x, y, z]
+     * @param {q} quaternion 
+     * @returns vector 3
+     */
+    angleMagnitude:function(quaternion)
+    {
+        let q = quaternion.clone();
+        let angle = 2 * Math.acos(quaternion.w);
+        var axis = [0, 0, 0];
+        if (1 - (q.w * q.w) < 0.000001)
+        {
+            axis[0] = q.x;
+            axis[1] = q.y;
+            axis[2] = q.z;
+        }
+        else
+        {
+            // http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+            var s = Math.sqrt(1 - (q.w * q.w));
+            axis[0] = q.x / s;
+            axis[1] = q.y / s;
+            axis[2] = q.z / s;
+        }
+        return new THREE.Vector3(axis[0]*angle,axis[1]*angle,axis[2]*angle)
+    },
+    /**
+     * 
+     * @param {radians} x 
+     * @returns Angle
+     */
+    toAngle: function(x)
+    {
+        return x * 180 / Math.PI;
+    },
+    cubeRF : "",
+    pivote :"",
+    crearcuboReferencia(scene)
+    {
+        const geometry = new THREE.BoxGeometry( .1, .1, .8 );
+        const material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
+        const cube = new THREE.Mesh( geometry, material );
+        cube. position.set(0,-1.5,0);
+        scene.add(cube)
+        gpsMain.cubeRF = cube;
+        //2
+        const geometry2 = new THREE.BoxGeometry( .15, .15, .15 );
+        const material2 = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+        const cube2 = new THREE.Mesh( geometry2, material2 );
+        cube2.position.set(0,0,.4)
+        cube.add(cube2);
+        gpsMain.pivote =  cube.clone();
+        scene.add(gpsMain.pivote);
+        //gpsMain.pivote.materials[0].color = 0xffffff
+    },
     crearcubosDeReferenciatest(scene,pos)
     {
         const geometry = new THREE.BoxGeometry( .1, 2, .1 );
@@ -102,7 +215,7 @@ let gpsMain=
         const box3 = new THREE.Mesh(new THREE.BoxBufferGeometry(0.5, 0.5, 0.5), materials[2]);
         const box4 = new THREE.Mesh(new THREE.BoxBufferGeometry(0.05, 0.05, 0.4), materials[3]);
         
-        //box1.add(box2);
+        box1.add(box2);
         gpsMain.cubeTestPivote = box1;
         // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[0]);
         // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[1]); 
@@ -110,7 +223,7 @@ let gpsMain=
         // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[3]); 
         // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[4]);  
         // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[5]); 
-        gpsMain.createPolygon(gpsMain.testCoordinates,pos)
+        gpsMain.createPolygon(gpsMain.testCoordinates,pos,box2)
         box2.position.z+=1;
         //box1.add(box3);
         box3.position.set(1,pos.y,2);
@@ -134,23 +247,33 @@ let gpsMain=
         box1.rotation.set(0,gpsMain.normalizeAngle0_360(gpsMain.heading +180 + angle)*Math.PI/180,0);
         // /regresar  a donde se encuentra el usuario
         // console.log("...")
-        // console.log(box1.position)
+        console.log(box1.position)
+        /**
+         * box1 se encuentra en el lugar del usuario coordenadas actuales
+         * x = posicion del usuario x
+         * y = la altura del suelo  y
+         * z = posicion del usuario z
+         */
         box1.position.set(gpsMain.pose.transform.position.x,pos.y,gpsMain.pose.transform.position.z)
+        //document.getElementById("Test").innerHTML = "box X"+box1.position.x +" y"+ box1.position.y +" z"+ box1.position.z;
         console.log(box1.position)
         scene.add(box1);
 
         scene.add(box4)
-        // diferencia
-        var dif;
-        if (gpsMain.heading<180)
-        {
-            dif = angle+gpsMain.heading;
-        }
-        else
-        {
-            dif=(360-gpsMain.heading)-angle;
-        }
-        console.log(dif);
+
+        // // diferencia
+        // var dif;
+        // if (gpsMain.heading<180)
+        // {
+        //     dif = angle+gpsMain.heading;
+        // }
+        // else
+        // {
+        //     //dif=(360-gpsMain.heading)+angle;
+        //     dif = (180-gpsMain.heading) + angle
+        // }
+        // // box1.rotation.set(0,gpsMain.normalizeAngle0_360(dif)*Math.PI/180,0);
+        // console.log(dif);
 
     },
     normalizeAngle0_360(angle){
@@ -227,19 +350,57 @@ let gpsMain=
      * 
      * @param {Array[json]} coordinates 
      */
-    createPolygon(coordinates,reticle)
+    createPolygon(coordinates,parent)
     {
+        let clon = ""
+        
+        // elliminar
+        const geometry = new THREE.BoxGeometry( 4, 4, 4 );
+        const material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
+        const cube = new THREE.Mesh( geometry, material );
        const areaPts = [];
+       //fin
        for (let i = 0;i<coordinates.length; i++)
         {
-            areaPts.push(gpsMain.coordinateToVirtualSpace(coordinates[i]));
+           areaPts.push(gpsMain.coordinateToVirtualSpace(coordinates[i]));
+           //elminar, test, referencia          
+          cube.position.set(areaPts[i].x,gpsMain.i,areaPts[i].y);
+          console.log("*****")
+          //console.log(new THREE.Vector2(0,0).distanceTo(xz))
+          //cube.position.set(1,gpsMain.i,1);       
+          clon = cube.clone();
+          gpsMain.pivote.add (clon)
+           //
         };
+
+        // test
+// cube.position.set(2,0,5);
+// clon = cube.clone();
+// gpsMain.pivote.add (clon)
+
+// cube.position.set(-2,0,3);
+// clon = cube.clone();
+// gpsMain.pivote.add (clon)
+
+// cube.position.set(-2,0,-3);
+// clon = cube.clone();
+// gpsMain.pivote.add (clon)
+
+// cube.position.set(2,0,-3);
+// clon = cube.clone();
+// gpsMain.pivote.add (clon)
+    // areaPts.push(new THREE.Vector2(2,5))
+    // areaPts.push(new THREE.Vector2(-2,3))
+    // areaPts.push(new THREE.Vector2(-2,-3))
+    // areaPts.push(new THREE.Vector2(2,-3))
+console.log (areaPts)
+   //fin
         const areaShape =new THREE.Shape( areaPts );
-        gpsMain.addShape(areaShape,0xff0000,reticle );
+        gpsMain.addShape(areaShape,0xff0000,parent );
        
 
     },
-    addShape:function(shape,color,reticle)
+    addShape:function(shape,color,parent)
     {
 
 
@@ -247,17 +408,16 @@ let gpsMain=
         let geometry = new THREE.ShapeGeometry( shape );
         let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
 
-        mesh.position.set( 0, reticle.y, 0 );
+        mesh.position.set( 0, 0, 0 );
         mesh.rotation.set(1.5708,0,0);
-        gpsMain.cubeTestPivote.add(mesh)
+        //gpsMain.cubeTestPivote.add(mesh)
+        parent.add(mesh)
         //line
         shape.autoClose = true;
         const points = shape.getPoints();
         const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
 
         let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
-		//line.position.set( 0, reticle.y, 0 );
-		//line.rotation.set(1.5708,0,0);
 	    mesh.add( line );
 
     },
@@ -377,7 +537,7 @@ let gpsMain=
             if (event.absolute === true || event.absolute === undefined) {
                 gpsMain.heading = gpsMain._computeCompassHeading(event.alpha, event.beta, event.gamma);
                 // console.log("heading " +gpsMain.heading)
-                document.getElementById("Test").innerHTML = gpsMain.heading;
+                // document.getElementById("Test").innerHTML = gpsMain.heading;
             } else {
                 console.warn('event.absolute === false');
             }

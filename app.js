@@ -139,10 +139,11 @@ class App {
     //     /** Update the reticle position. */
         this.reticle.visible = true;
         this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
-        this.reticle.updateMatrixWorld(true);                                                                                  
+        this.reticle.updateMatrixWorld(true);
+        gpsMain.updateRotation(hitPose.transform)                                                                                  
       }
       gpsMain.pose = pose;
-      document.getElementById("Test2").innerHTML ="x "+pose.transform.position.x+" y: "+pose.transform.position.y+"z"+pose.transform.position.z
+      //document.getElementById("Test2").innerHTML ="x "+pose.transform.position.x+" y: "+pose.transform.position.y+"z"+pose.transform.position.z
       /** Render the scene with THREE.WebGLRenderer. */
       this.renderer.render(this.scene, this.camera)
     }
@@ -179,8 +180,9 @@ class App {
     this.camera.matrixAutoUpdate = false;
 
     //Richard 19.35979828879917, -98.98015526076556
-    console.log( gpsMain.computeDistanceMeters({latitude:19.359937468701816,longitude: -98.98130324618646},{latitude:19.35979828879917,longitude: -98.98015526076556}));
-    
+   // console.log( gpsMain.computeDistanceMeters({latitude:19.359937468701816,longitude: -98.98130324618646},{latitude:19.35979828879917,longitude: -98.98015526076556}));
+      gpsMain.crearcuboReferencia(this.scene)
+    console.log(this.camera)
 
 
     // this.scene.add(cube);
@@ -188,20 +190,29 @@ class App {
 
   /** Place a sunflower when the screen is tapped. */
   onSelect = () => {
-    if (window.sunflower) {
+    if (!gpsMain.checkCalibrado)
+    {
+      gpsMain.checkCalibrado = true; 
+
+        gpsMain.createPolygon(gpsMain.testCoordinates1,gpsMain.pivote)
+        gpsMain.createPolygon(gpsMain.testCoordinates2,gpsMain.pivote)
+
+      
+    // }
+    // if (window.sunflower) {
       
 
-      gpsMain.crearcubosDeReferenciatest(this.scene,this.reticle.position )  
+    //   gpsMain.crearcubosDeReferenciatest(this.scene,this.reticle.position )  
 
-      // gpsMain.createPuntoTest1(this.scene,cube,this.reticle.position);       
-      console.log("xxxx")
-      // const clone = window.sunflower.clone();
-      // clone.position.copy(this.reticle.position);
-      // this.scene.add(clone)
+    //   // gpsMain.createPuntoTest1(this.scene,cube,this.reticle.position);       
+    //   console.log("xxxx")
+    //   // const clone = window.sunflower.clone();
+    //   // clone.position.copy(this.reticle.position);
+    //   // this.scene.add(clone)
   
-      // const shadowMesh = this.scene.children.find(c => c.name === 'shadowMesh');
-      // shadowMesh.position.y = clone.position.y;
-    }
+    //   // const shadowMesh = this.scene.children.find(c => c.name === 'shadowMesh');
+    //   // shadowMesh.position.y = clone.position.y;
+     }
   }
 }
 
