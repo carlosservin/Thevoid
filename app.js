@@ -183,7 +183,7 @@ class App {
    // console.log( gpsMain.computeDistanceMeters({latitude:19.359937468701816,longitude: -98.98130324618646},{latitude:19.35979828879917,longitude: -98.98015526076556}));
       gpsMain.crearcuboReferencia(this.scene)
     console.log(this.camera)
-    gpsMain._getVertexPoligon({"lat":27.4995,"lng":-82.556286})
+    //gpsMain._getVertexPoligon({"lat":27.4995,"lng":-82.556286})
 
     // this.scene.add(cube);
   }
