@@ -194,6 +194,7 @@ class App {
     {
       gpsMain.checkCalibrado = true; 
         gpsMain.createPolygon(gpsMain.testCoordinates,gpsMain.pivote)
+        
         //gpsMain._getVertexPoligon({"lat":27.4995,"lng":-82.556286})
         // gpsMain.createPolygon(gpsMain.testCoordinates1,gpsMain.pivote)
         // gpsMain.createPolygon(gpsMain.testCoordinates2,gpsMain.pivote)

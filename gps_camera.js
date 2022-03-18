@@ -35,7 +35,7 @@ let gpsMain=
                             {"latitude":27.499276,"longitude":-82.556388},
                             {"latitude":27.499306,"longitude":-82.556427},
                             {"latitude":27.499476,"longitude":-82.556384},
-                            {"lalatitudet":27.499545,"longitude":-82.556325}],
+                            {"latitude":27.499545,"longitude":-82.556325}],
         
         testCoordinates2:[  {"latitude":27.499668,"longitude":-82.556634},
                             {"latitude":27.499621,"longitude":-82.556744},
@@ -579,6 +579,7 @@ console.log (areaPts)
             dist_miles: '.126',
             url:'https://community.saltstrong.com/api/get_polygons.php?'
         };
+        
             // CORS Proxy to avoid CORS problems
     const corsProxy = 'https://cors-anywhere.herokuapp.com/';
 
