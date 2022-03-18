@@ -18,7 +18,7 @@ let gpsMain=
         /* 
         test coordinates mi casa
         */
-       /*
+       
         testCoordinates: [
             {latitude:19.359886, longitude: -98.980933},//avind-hora
             {latitude:19.359337, longitude:-98.980989}, //avind-pueb
@@ -26,7 +26,7 @@ let gpsMain=
             {latitude:19.359719, longitude: -98.979399}], //avsim-hora
             // {latitude:19.359891, longitude:-98.980932},
             // {latitude:19.359904, longitude:-98.980599}],
-          */  
+          
            
         testCoordinates1:[   {"latitude":27.4995,"longitude":-82.556286},
                             {"latitude":27.499451,"longitude":-82.556323},
@@ -82,27 +82,7 @@ let gpsMain=
 
         return distance;
     },
-    // crearCuboTestPivote(scene,pos)
-    // {
-    //     const geometry = new THREE.BoxGeometry( .5, .5, .5 );
-    //     const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-    //     const cube = new THREE.Mesh( geometry, material );
-    //     cube.scale.set(0.1,0.1,0.1);   
-    //     cube.position.copy(pos)
-        
-    //     const geometry2 = new THREE.BoxGeometry( .2, .2, .2 );
-    //     const material2 = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
 
-    //     const clone = new THREE.Mesh( geometry2, material2 );
-    //     // clone.position.set(0,0,2)
-    //     cube.add(clone)
-    //     clone.position.z += 2;
-    //     scene.add(cube);
-    //     gpsMain.cubeTestPivote = cube;
-    //     console.log("rotacion")
-    //     console.log(cube.rotation)
-
-    // },
     checkCalibrado :false,
     poligonosCreados : false,
     i:0.0, // borrar
@@ -120,9 +100,9 @@ let gpsMain=
         let difCamara = (camaraRotationY) //eje z
         let dif = difCamara +difHeading
         
-        document.getElementById("Test").innerHTML = difHeading
-        document.getElementById("Test2").innerHTML = difCamara
-        document.getElementById("Test3").innerHTML = dif
+        // document.getElementById("Test").innerHTML = difHeading
+        // document.getElementById("Test2").innerHTML = difCamara
+        // document.getElementById("Test3").innerHTML = dif
         if (!gpsMain.checkCalibrado)
         {
             gpsMain.pivote.rotation.set(0,(dif)* Math.PI/180,0)
@@ -587,6 +567,35 @@ console.log (areaPts)
                    console.log("Error" + error);
                }
            })
+   },
+   _getVertexPoligon:function(position)
+   {
+        const params = 
+        {
+            key : '8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130',
+            for : 'sumeru',
+            lat : position.lat,
+            lng: position.lng,
+            dist_miles: '.126',
+            url:'https://community.saltstrong.com/api/get_polygons.php?'
+        };
+            // CORS Proxy to avoid CORS problems
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+
+        const url = `${params.url}
+        &key=${params.key}
+        &for=${params.for}
+        &lat=${params.lat}
+        &lng=${params.lng}
+        &dist_miles=${params.dist_miles}`;
+        fetch(url)
+        .then(res=>{
+            res.json()
+            .then(data=>
+                {
+                    console.log(data)
+                })
+        })
    }
 
 }
