@@ -544,9 +544,23 @@ console.log (areaPts)
     /*
         post
     */
-   _getPolygonCoords: function()
+   _getPolygonCoords: function(position)
    {
-       const Url ='https://url';
+    const params = 
+    {
+        key : '8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130',
+        for : 'sumeru',
+        lat : position.lat,
+        lng: position.lng,
+        dist_miles: '.126',
+        url:'https://community.saltstrong.com/api/get_polygons.php?'
+    };
+
+        // CORS Proxy to avoid CORS problems
+const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+
+    const Url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
+       //const Url ='https://url';
        const data=
        {
            lat:123456789,
@@ -554,9 +568,10 @@ console.log (areaPts)
        }
        $.ajax(
            {
+               
                url: Url,
-               type:"POST",
-               data:data,
+            //    type:"POST",
+            //    data:data,
                success: function(result)
                {
                     //CreatePolygon
@@ -579,24 +594,59 @@ console.log (areaPts)
             dist_miles: '.126',
             url:'https://community.saltstrong.com/api/get_polygons.php?'
         };
-        
+
             // CORS Proxy to avoid CORS problems
     const corsProxy = 'https://cors-anywhere.herokuapp.com/';
 
-        const url = `${params.url}
-        &key=${params.key}
-        &for=${params.for}
-        &lat=${params.lat}
-        &lng=${params.lng}
-        &dist_miles=${params.dist_miles}`;
+        const url = `${corsProxy}${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
+        console.log(url)
         fetch(url)
         .then(res=>{
+            console.log(res)
             res.json()
             .then(data=>
                 {
                     console.log(data)
                 })
         })
+   },
+   _getVertexPoligonTest:function(position)
+   {
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+    const form = new FormData();
+
+    fetch(corsProxy+"https://community.saltstrong.com/api/get_polygons.php?key=8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130&for=sumeru&lat=27.4995&lng=-82.556286&dist_miles=.126", {
+      "method": "GET",
+      "headers": {
+        
+        "Content-Type": "multipart/form-data; boundary=---011000010111000001101001"
+      }
+    })
+    .then(response => {
+      console.log(response);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+   },
+   _getVertexPoligonTest2:function(position)
+   {
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+    const form = new FormData();
+
+    fetch("https://community.saltstrong.com/api/get_polygons.php?key=8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130&for=sumeru&lat=27.4995&lng=-82.556286&dist_miles=.126", {
+      "method": "GET",
+      "headers": {
+        
+        "Content-Type": "multipart/form-data; boundary=---011000010111000001101001"
+      }
+    })
+    .then(response => {
+      console.log(response);
+    })
+    .catch(err => {
+      console.error(err);
+    });
    }
 
 }
