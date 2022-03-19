@@ -177,86 +177,7 @@ let gpsMain=
         scene.add(gpsMain.pivote);
         //gpsMain.pivote.materials[0].color = 0xffffff
     },
-    crearcubosDeReferenciatest(scene,pos)
-    {
-        const geometry = new THREE.BoxGeometry( .1, 2, .1 );
-        const material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
-        const cube = new THREE.Mesh( geometry, material );
-
-
-        const materials = [
-            new THREE.MeshBasicMaterial( {color: 0xff0000} ),
-            new THREE.MeshBasicMaterial( {color: 0x0000ff} ),
-            new THREE.MeshBasicMaterial( {color: 0x00ffff} ),
-            new THREE.MeshBasicMaterial( {color: 0xffffff} )
-        ]
-        const box1 = new THREE.Mesh(new THREE.BoxBufferGeometry(.2, .2, .2), materials[0]);
-        const box2 = new THREE.Mesh(new THREE.BoxBufferGeometry(0.1, 0.1, 0.1), materials[1]);
-        const box3 = new THREE.Mesh(new THREE.BoxBufferGeometry(0.5, 0.5, 0.5), materials[2]);
-        const box4 = new THREE.Mesh(new THREE.BoxBufferGeometry(0.05, 0.05, 0.4), materials[3]);
-        
-        box1.add(box2);
-        gpsMain.cubeTestPivote = box1;
-        // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[0]);
-        // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[1]); 
-        // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[2]); 
-        // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[3]); 
-        // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[4]);  
-        // gpsMain.createPuntoTest1(cube,pos, gpsMain.testCoordinates[5]); 
-                                                                            //gpsMain.createPolygon(gpsMain.testCoordinates,pos,box2)
-                                                                            gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
-        box2.position.z+=1;
-        //box1.add(box3);
-        box3.position.set(1,pos.y,2);
-       box1.position.copy(pos);
-        
-        box4.position.copy(pos)
-        box4.rotation.x = 0
-        box4.rotation.z = 0
-        // box4.lookAt(pos)
-        box4.lookAt(gpsMain.pose.transform.position.x, pos.y,gpsMain.pose.transform.position.z)     
-        box4.quaternion.normalize();
-        var angle= (2*Math.acos( box4.quaternion.w)*180/Math.PI)
-        box4.quaternion.y<0 ? angle*= -1 :angle *= 1 
-        angle = gpsMain.normalizeAngle0_360(angle);
-        //  console.log("angle" + angle)
-        //  console.log("heading"+ gpsMain.heading)        
-        
-        // console.log ("------__________")
-        // console.log(gpsMain.normalizeAngle0_360(gpsMain.heading +180 + angle))
-        
-        box1.rotation.set(0,gpsMain.normalizeAngle0_360(gpsMain.heading +180 + angle)*Math.PI/180,0);
-        // /regresar  a donde se encuentra el usuario
-        // console.log("...")
-        console.log(box1.position)
-        /**
-         * box1 se encuentra en el lugar del usuario coordenadas actuales
-         * x = posicion del usuario x
-         * y = la altura del suelo  y
-         * z = posicion del usuario z
-         */
-        box1.position.set(gpsMain.pose.transform.position.x,pos.y,gpsMain.pose.transform.position.z)
-        //document.getElementById("Test").innerHTML = "box X"+box1.position.x +" y"+ box1.position.y +" z"+ box1.position.z;
-        console.log(box1.position)
-        scene.add(box1);
-
-        scene.add(box4)
-
-        // // diferencia
-        // var dif;
-        // if (gpsMain.heading<180)
-        // {
-        //     dif = angle+gpsMain.heading;
-        // }
-        // else
-        // {
-        //     //dif=(360-gpsMain.heading)+angle;
-        //     dif = (180-gpsMain.heading) + angle
-        // }
-        // // box1.rotation.set(0,gpsMain.normalizeAngle0_360(dif)*Math.PI/180,0);
-        // console.log(dif);
-
-    },
+    
     normalizeAngle0_360(angle){
         if (angle<0)
         {
@@ -273,60 +194,7 @@ let gpsMain=
         }
         return angle;
     },
-    createPuntoTest1(obj,reticle,dstCoords)
-    {
-        if (obj)
-        {
-            const clone =obj.clone();
-
-            let pos ={x:0, z:0};//19.359829784873142, -98.98040303696732
-            //19.359772422065554, -98.98021321382504  mi cuarto
-            //19.359846, -98.980252 arbol
-            
-            // let dstCoords = 
-            // {
-            //     latitude:19.359846,
-            //     longitude: -98.980252
-            // }
-            // pos.x = gpsMain.computeDistanceMeters(gpsMain.originCoords,dstCoords)
-            // pos.x *= gpsMain.currentCoords.longitude> gpsMain.originCoords.longitude ? 1 :-1;
-
-            // pos.z = gpsMain.computeDistanceMeters(gpsMain.originCoords,dstCoords)
-            // pos.z *= gpsMain.currentCoords.latitude> gpsMain.originCoords.latitude? -1:1;
-
-            //z = latitude
-            pos.z = gpsMain.computeDistanceMeters({longitude:0 , latitude: gpsMain.currentCoords.latitude},{longitude:0, latitude:dstCoords.latitude})
-            pos.z *= gpsMain.currentCoords.latitude> dstCoords.latitude ? -1:1
-            //x = longitude
-            pos.x = gpsMain.computeDistanceMeters({longitude:gpsMain.currentCoords.longitude, latitude:0}, {longitude:dstCoords.longitude,latitude:0})
-            pos.x *= gpsMain.currentCoords.longitude>dstCoords.longitude ? 1:-1
-
-            //norte lo represento en el eje z
-                // pos.z = gpsMain.computeDistanceMeters({longitude:0, latitude:gpsMain.currentCoords.latitude }, {longitude:0, latitude:dstCoords.latitude  })
-                // pos.z *= gpsMain.currentCoords.longitude> dstCoords.longitude ? -1 :1; 
-                // pos.x = gpsMain.computeDistanceMeters({longitude:gpsMain.currentCoords.longitude, latitude:0 }, {longitude: dstCoords.longitude, latitude:0  })
-                // pos.x *= gpsMain.currentCoords.latitude> gpsMain.originCoords.latitude? -1:1;
-            //=======
-
-                // pos.x =gpsMain.computeDistanceMeters({longitude:0, latitude:gpsMain.currentCoords.latitude }, {longitude:0, latitude:dstCoords.latitude  })
-                // pos.x *= gpsMain.currentCoords.longitude> gpsMain.originCoords.longitude ? -1 :1;
-                // pos.z =gpsMain.computeDistanceMeters({longitude:gpsMain.currentCoords.longitude, latitude:0 }, {longitude: dstCoords.longitude, latitude:0  })
-                // pos.z *= gpsMain.currentCoords.latitude> gpsMain.originCoords.latitude? 1:-1;
-            
-            gpsMain.cubeTestPivote.add(clone);
-
-            clone.position.set(pos.x,reticle.y,pos.z);
-            //clone.position.set(pos.z,reticle.y,pos.x);
-            //clone.position.copy(pos)                //checar bien las dimensiones
-            console.log(clone)
-            console.log("clone")
-            //scene.add(clone);
-            var distancia=gpsMain.computeDistanceMeters(gpsMain.currentCoords, dstCoords)
-            console.log("posX: "+pos.x + "   pos Z: " + pos.z + " distancia:  "+ distancia );
-
-        }
-
-    },
+    
     /**
      * 
      * @param {Array[json]} coordinates 
@@ -344,6 +212,7 @@ let gpsMain=
        for (let i = 0;i<coordinates.length; i++)
         {
            areaPts.push(gpsMain.coordinateToVirtualSpace(coordinates[i]));
+           
            //elminar, test, referencia          
           cube.position.set(areaPts[i].x,gpsMain.i,areaPts[i].y);
           console.log("*****")
@@ -351,34 +220,30 @@ let gpsMain=
           //cube.position.set(1,gpsMain.i,1);       
           clon = cube.clone();
           gpsMain.pivote.add (clon)
-           //
         };
-
-        // test
-// cube.position.set(2,0,5);
-// clon = cube.clone();
-// gpsMain.pivote.add (clon)
-
-// cube.position.set(-2,0,3);
-// clon = cube.clone();
-// gpsMain.pivote.add (clon)
-
-// cube.position.set(-2,0,-3);
-// clon = cube.clone();
-// gpsMain.pivote.add (clon)
-
-// cube.position.set(2,0,-3);
-// clon = cube.clone();
-// gpsMain.pivote.add (clon)
-    // areaPts.push(new THREE.Vector2(2,5))
-    // areaPts.push(new THREE.Vector2(-2,3))
-    // areaPts.push(new THREE.Vector2(-2,-3))
-    // areaPts.push(new THREE.Vector2(2,-3))
-console.log (areaPts)
-   //fin
         const areaShape =new THREE.Shape( areaPts );
-        gpsMain.addShape(areaShape,0xff0000,parent );
-       
+        gpsMain.addShape(areaShape,0xff0000,gpsMain.pivote );     
+
+    },
+    addShape:function(shape,color,parent)
+    {
+
+
+        // flat shape
+        let geometry = new THREE.ShapeGeometry( shape );
+        let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
+
+        mesh.position.set( 0, 0, 0 );
+        mesh.rotation.set(1.5708,0,0);
+        //gpsMain.cubeTestPivote.add(mesh)
+        parent.add(mesh)
+        //line
+        shape.autoClose = true;
+        const points = shape.getPoints();
+        const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
+
+        let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
+	    mesh.add( line );
 
     },
     
@@ -415,33 +280,85 @@ console.log (areaPts)
                     for(let i = 0; i<polygonCouter;i++)
                     {
                         console.log("--"+polygons[i].length )
-                        gpsMain.createPolygon(polygons[i])
+                        //gpsMain.createPolygon(polygons[i])
                     }
                     console.log(polygons)
                 })
         })
    },
-    addShape:function(shape,color,parent)
-    {
+   _getVertexPolygonTest2:function(_position)
+   {
+        const params = 
+        {
+            key : '8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130',
+            for : 'sumeru',
+            lat : _position.lat,
+            lng: _position.lng,
+            dist_miles: '.126',
+            url:'https://community.saltstrong.com/api/get_polygons.php?'
+        };
 
+            // CORS Proxy to avoid CORS problems
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
 
-        // flat shape
-        let geometry = new THREE.ShapeGeometry( shape );
-        let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
+        const url = `${corsProxy}${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
+        console.log(url)
+        fetch(url)
+        .then(res=>{
+            console.log(res)
+            res.json()
+            .then(data=>
+                {
+                    let polygons = JSON.parse( data.result[0].PolygonCoords)
+                    
 
-        mesh.position.set( 0, 0, 0 );
-        mesh.rotation.set(1.5708,0,0);
-        //gpsMain.cubeTestPivote.add(mesh)
-        parent.add(mesh)
-        //line
-        shape.autoClose = true;
-        const points = shape.getPoints();
-        const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
+                    let polygonCouter =Object.keys(polygons).length
+                    for(let i = 0; i<polygonCouter;i++)
+                    {
+                        console.log("--"+polygons[i].length )
+                        //gpsMain.createPolygon(polygons[i])
+                    }
+                    console.log(polygons)
+                })
+        })
+   },
+   _getVertexPolygonTest3:function(_position)
+   {
+        const params = 
+        {
+            key : '8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130',
+            for : 'sumeru',
+            lat : _position.lat,
+            lng: _position.lng,
+            dist_miles: '.126',
+            url:'https://community.saltstrong.com/api/get_polygons.php?'
+        };
 
-        let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
-	    mesh.add( line );
+            // CORS Proxy to avoid CORS problems
+    const corsProxy = 'https://cryptic-headland-94862.herokuapp.com/';
 
-    },
+        const url = `${corsProxy}${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
+        console.log(url)
+        fetch(url)
+        .then(res=>{
+            console.log(res)
+            res.json()
+            .then(data=>
+                {
+                    let polygons = JSON.parse( data.result[0].PolygonCoords)
+                    
+
+                    let polygonCouter =Object.keys(polygons).length
+                    for(let i = 0; i<polygonCouter;i++)
+                    {
+                        console.log("--"+polygons[i].length )
+                        //gpsMain.createPolygon(polygons[i])
+                    }
+                    console.log(polygons)
+                })
+        })
+   },
+
 
     /**
      * 
