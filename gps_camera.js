@@ -254,7 +254,8 @@ let gpsMain=
         console.log(reticle);
         console.log(gpsMain.pivote)
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
-        gpsMain._getVertexPolygon({"lat":27.49945,"lng":-82.556287})
+        //gpsMain._getVertexPolygon({"lat":27.49945,"lng":-82.556287})
+        gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
