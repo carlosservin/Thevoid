@@ -282,18 +282,28 @@ let gpsMain=
             res.json()
             .then(data=>
                 {
+                    console.log(data.result)
+                    if (data.result != "No record found")
+                    {
                     let polygons = JSON.parse( data.result[0].PolygonCoords)
                     
 
                     let polygonCouter =Object.keys(polygons).length
-                    for(let i = 0; i<polygonCouter;i++)
-                    {
-                        console.log("--"+polygons[i].length )
-                        //gpsMain.createPolygon(gpsMain.currentCoords,polygons[i])
-                        gpsMain.createPolygon(_position,polygons[i]) /// test
 
-                    }
+                        for(let i = 0; i<polygonCouter;i++)
+                        {
+                            console.log("--"+polygons[i].length )
+                            //gpsMain.createPolygon(gpsMain.currentCoords,polygons[i])
+                            gpsMain.createPolygon(_position,polygons[i]) /// test
+    
+                        }
                     console.log(polygons)
+                    }else
+                    {
+                        document.getElementById("Test").innerHTML = "no polygon";
+                    }
+
+                    
                 })
         })
    },

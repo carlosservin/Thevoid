@@ -140,6 +140,7 @@ class App {
         this.reticle.visible = true;
         this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
         this.reticle.updateMatrixWorld(true);
+        this.createPoligon = true
         gpsMain.updateRotation(hitPose.transform)                                                                                  
       }
       gpsMain.pose = pose;
@@ -180,9 +181,8 @@ class App {
     this.camera.matrixAutoUpdate = false;
 
     //Richard 19.35979828879917, -98.98015526076556
-   // console.log( gpsMain.computeDistanceMeters({lat:19.359937468701816,lng: -98.98130324618646},{lat:19.35979828879917,lng: -98.98015526076556}));
+    this.createPoligon = false;
       gpsMain.crearcuboReferencia(this.scene)
-    console.log(this.camera)
     //gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
 
     // this.scene.add(cube);
@@ -190,11 +190,12 @@ class App {
 
   /** Place a sunflower when the screen is tapped. */
   onSelect = () => {
-    if (!gpsMain.checkCalibrado)
+    if (!gpsMain.checkCalibrado&& this.createPoligon)
     {
+
+      
       gpsMain.checkCalibrado = true; 
         //gpsMain.createPolygon(gpsMain.testCoordinates)
-        console.log(this.reticle)
         gpsMain._loadVertexPolygon(this.reticle);
 
         //gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
