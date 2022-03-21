@@ -262,82 +262,8 @@ let gpsMain=
             url:'https://community.saltstrong.com/api/get_polygons.php?'
         };
 
-            // CORS Proxy to avoid CORS problems
-    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
 
         const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
-        console.log(url)
-        fetch(url)
-        .then(res=>{
-            console.log(res)
-            res.json()
-            .then(data=>
-                {
-                    let polygons = JSON.parse( data.result[0].PolygonCoords)
-                    
-
-                    let polygonCouter =Object.keys(polygons).length
-                    for(let i = 0; i<polygonCouter;i++)
-                    {
-                        console.log("--"+polygons[i].length )
-                        //gpsMain.createPolygon(polygons[i])
-                    }
-                    console.log(polygons)
-                })
-        })
-   },
-   _getVertexPolygonTest2:function(_position)
-   {
-        const params = 
-        {
-            key : '8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130',
-            for : 'sumeru',
-            lat : _position.lat,
-            lng: _position.lng,
-            dist_miles: '.126',
-            url:'https://community.saltstrong.com/api/get_polygons.php?'
-        };
-
-            // CORS Proxy to avoid CORS problems
-    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
-
-        const url = `${corsProxy}${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
-        console.log(url)
-        fetch(url)
-        .then(res=>{
-            console.log(res)
-            res.json()
-            .then(data=>
-                {
-                    let polygons = JSON.parse( data.result[0].PolygonCoords)
-                    
-
-                    let polygonCouter =Object.keys(polygons).length
-                    for(let i = 0; i<polygonCouter;i++)
-                    {
-                        console.log("--"+polygons[i].length )
-                        //gpsMain.createPolygon(polygons[i])
-                    }
-                    console.log(polygons)
-                })
-        })
-   },
-   _getVertexPolygonTest3:function(_position)
-   {
-        const params = 
-        {
-            key : '8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130',
-            for : 'sumeru',
-            lat : _position.lat,
-            lng: _position.lng,
-            dist_miles: '.126',
-            url:'https://community.saltstrong.com/api/get_polygons.php?'
-        };
-
-            // CORS Proxy to avoid CORS problems
-    const corsProxy = 'https://cryptic-headland-94862.herokuapp.com/';
-
-        const url = `${corsProxy}${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
         console.log(url)
         fetch(url)
         .then(res=>{
