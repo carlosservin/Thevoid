@@ -2,47 +2,46 @@ let gpsMain=
 {   
     originCoords :
         {
-            latitude:0,
-            longitude: 0
+            lat:0,
+            lng: 0
         },
     currentCoords :
         {
-            latitude:0,
-            longitude: 0
+            lat:0,
+            lng: 0
         },
         pose: "",
         _onDeviceOrientation : "",
         heading : "",
-        cubeTestPivote: "",
-        rotateCameraZ : new THREE.Vector3( 0, 0, - 1 ),
+        
         /* 
         test coordinates mi casa
         */
        
         testCoordinates: [
-            {latitude:19.359886, longitude: -98.980933},//avind-hora
-            {latitude:19.359337, longitude:-98.980989}, //avind-pueb
-            {latitude:19.359141, longitude:-98.979514}, //avsim-pueb
-            {latitude:19.359719, longitude: -98.979399}], //avsim-hora
-            // {latitude:19.359891, longitude:-98.980932},
-            // {latitude:19.359904, longitude:-98.980599}],
+            {lat:19.359886, lng: -98.980933},//avind-hora
+            {lat:19.359337, lng:-98.980989}, //avind-pueb
+            {lat:19.359141, lng:-98.979514}, //avsim-pueb
+            {lat:19.359719, lng: -98.979399}], //avsim-hora
+            // {lat:19.359891, lng:-98.980932},
+            // {lat:19.359904, lng:-98.980599}],
           
            
-        testCoordinates1:[   {"latitude":27.4995,"longitude":-82.556286},
-                            {"latitude":27.499451,"longitude":-82.556323},
-                            {"latitude":27.49934,"longitude":-82.556339},
-                            {"latitude":27.499279,"longitude":-82.556341},
-                            {"latitude":27.499276,"longitude":-82.556388},
-                            {"latitude":27.499306,"longitude":-82.556427},
-                            {"latitude":27.499476,"longitude":-82.556384},
-                            {"latitude":27.499545,"longitude":-82.556325}],
+        testCoordinates1:[   {"lat":27.4995,"lng":-82.556286},
+                            {"lat":27.499451,"lng":-82.556323},
+                            {"lat":27.49934,"lng":-82.556339},
+                            {"lat":27.499279,"lng":-82.556341},
+                            {"lat":27.499276,"lng":-82.556388},
+                            {"lat":27.499306,"lng":-82.556427},
+                            {"lat":27.499476,"lng":-82.556384},
+                            {"lat":27.499545,"lng":-82.556325}],
         
-        testCoordinates2:[  {"latitude":27.499668,"longitude":-82.556634},
-                            {"latitude":27.499621,"longitude":-82.556744},
-                            {"latitude":27.499523,"longitude":-82.556771},
-                            {"latitude":27.499481,"longitude":-82.556701},
-                            {"latitude":27.499533,"longitude":-82.556579},
-                            {"latitude":27.499628,"longitude":-82.556555}],
+        testCoordinates2:[  {"lat":27.499668,"lng":-82.556634},
+                            {"lat":27.499621,"lng":-82.556744},
+                            {"lat":27.499523,"lng":-82.556771},
+                            {"lat":27.499481,"lng":-82.556701},
+                            {"lat":27.499533,"lng":-82.556579},
+                            {"lat":27.499628,"lng":-82.556555}],
 
         
     SetCameraGps: function ()
@@ -51,14 +50,14 @@ let gpsMain=
                 //navigator.geolocation.watchPosition(showPosition);
                 navigator.geolocation.getCurrentPosition(function (position)
                 {
-                    gpsMain.originCoords.latitude = position.coords.latitude;
-                    gpsMain.originCoords.longitude = position.coords.longitude;
+                    gpsMain.originCoords.lat = position.coords.latitude;
+                    gpsMain.originCoords.lng = position.coords.longitude;
                 });
                 navigator.geolocation.watchPosition((position)=>
                 {
-                    gpsMain.currentCoords.latitude = position.coords.latitude;
-                    gpsMain.currentCoords.longitude = position.coords.longitude;
-                    //document.getElementById("Test2").innerHTML =("latitude: "+position.coords.latitude + "longitude: "+  position.coords.longitude)
+                    gpsMain.currentCoords.lat = position.coords.latitude;
+                    gpsMain.currentCoords.lng = position.coords.longitude;
+                    //document.getElementById("Test2").innerHTML =("lat: "+position.coords.lat + "lng: "+  position.coords.lng)
                 })
             } else {
                 x.innerHTML = "Geolocation is not supported by this browser.";
@@ -68,20 +67,7 @@ let gpsMain=
         window.addEventListener(eventName, gpsMain._onDeviceOrientation, false);
         console.log(gpsMain._onDeviceOrientation)
     },
-    /*
-        Distance in meters from coordinate
-     */
-    computeDistanceMeters: function (src, dest) {
-        var dlongitude = THREE.Math.degToRad(dest.longitude - src.longitude);
-        var dlatitude = THREE.Math.degToRad(dest.latitude - src.latitude);
 
-        var a = (Math.sin(dlatitude / 2) * Math.sin(dlatitude / 2)) + Math.cos(THREE.Math.degToRad(src.latitude)) * Math.cos(THREE.Math.degToRad(dest.latitude)) * (Math.sin(dlongitude / 2) * Math.sin(dlongitude / 2));
-        var angle = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        var distance = angle * 6378160;
-
-
-        return distance;
-    },
 
     checkCalibrado :false,
     poligonosCreados : false,
@@ -94,7 +80,6 @@ let gpsMain=
         
         var camaraRotationY =gpsMain.toAngle(gpsMain.angleMagnitude(gpsMain.cubeRF.quaternion).y)
         camaraRotationY = gpsMain.normalizeAngle0_360(camaraRotationY)
-        let offset =  gpsMain.normalizeAngle0_360(heading+camaraRotationY)
         
         let difHeading = gpsMain.angulo180(gpsMain.heading)
         let difCamara = (camaraRotationY) //eje z
@@ -161,19 +146,38 @@ let gpsMain=
     pivote :"",
     crearcuboReferencia(scene)
     {
-        const geometry = new THREE.BoxGeometry( .1, .1, .8 );
-        const material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
-        const cube = new THREE.Mesh( geometry, material );
-        cube. position.set(0,-1.5,0);
-        scene.add(cube)
-        gpsMain.cubeRF = cube;
-        //2
-        const geometry2 = new THREE.BoxGeometry( .15, .15, .15 );
-        const material2 = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-        const cube2 = new THREE.Mesh( geometry2, material2 );
-        cube2.position.set(0,0,.4)
-        cube.add(cube2);
-        gpsMain.pivote =  cube.clone();
+        /**
+         * plane Compass
+         */
+         const geometry = new THREE.PlaneGeometry( .2, .2 );
+         const texture =new THREE.TextureLoader().load( 'Texture/north.png' );
+         const material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide, map:texture, transparent:true} );
+         const plane = new THREE.Mesh( geometry, material );
+         plane.position.set(00,-1,0)
+         plane.rotation.set(1.5708,1.5708*2,0);
+         
+        //
+        // const geometry = new THREE.BoxGeometry( .1, .1, .8 );
+        // const material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+        // const cube = new THREE.Mesh( geometry, material );
+        // cube. position.set(0,-1.5,0);
+        // //cube.visible = false;
+        // //scene.add(cube)
+        const referencia = new THREE.Object3D();
+        //referencia.add(plane)
+        gpsMain.cubeRF = referencia;
+        scene.add(referencia)
+
+
+        // //2
+        // const geometry2 = new THREE.BoxGeometry( .15, .15, .15 );
+        // const material2 = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+        // const cube2 = new THREE.Mesh( geometry2, material2 );
+        // cube2.position.set(0,0,.4)
+        // cube.add(cube2);
+        // //gpsMain.pivote =  cube.clone();
+        gpsMain.pivote = new THREE.Object3D();
+        gpsMain.pivote.add(plane)
         scene.add(gpsMain.pivote);
         //gpsMain.pivote.materials[0].color = 0xffffff
     },
@@ -197,25 +201,24 @@ let gpsMain=
     
     /**
      * 
-     * @param {Array[json]} coordinates 
+     * @param {Array[json]} dstcoordinates 
      */
-    createPolygon(coordinates)
+    createPolygon(originCoords,dstcoordinates)
     {
         let clon = ""
         
         // elliminar
-        const geometry = new THREE.BoxGeometry( 4, 4, 4 );
+        const geometry = new THREE.BoxGeometry( .1, 2, .1 );
         const material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
         const cube = new THREE.Mesh( geometry, material );
        const areaPts = [];
        //fin
-       for (let i = 0;i<coordinates.length; i++)
+       for (let i = 0;i<dstcoordinates.length; i++)
         {
-           areaPts.push(gpsMain.coordinateToVirtualSpace(coordinates[i]));
+           areaPts.push(gpsMain.coordinateToVirtualSpace(originCoords,dstcoordinates[i]));
            
            //elminar, test, referencia          
           cube.position.set(areaPts[i].x,gpsMain.i,areaPts[i].y);
-          console.log("*****")
           //console.log(new THREE.Vector2(0,0).distanceTo(xz))
           //cube.position.set(1,gpsMain.i,1);       
           clon = cube.clone();
@@ -235,7 +238,7 @@ let gpsMain=
 
         mesh.position.set( 0, 0, 0 );
         mesh.rotation.set(1.5708,0,0);
-        //gpsMain.cubeTestPivote.add(mesh)
+       
         parent.add(mesh)
         //line
         shape.autoClose = true;
@@ -245,6 +248,13 @@ let gpsMain=
         let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
 	    mesh.add( line );
 
+    },
+    _loadVertexPolygon:function(reticle)
+    {
+        console.log(reticle);
+        console.log(gpsMain.pivote)
+        gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
+        gpsMain._getVertexPolygon({"lat":27.49945,"lng":-82.556287})
     },
     
     /*
@@ -278,7 +288,9 @@ let gpsMain=
                     for(let i = 0; i<polygonCouter;i++)
                     {
                         console.log("--"+polygons[i].length )
-                        //gpsMain.createPolygon(polygons[i])
+                        //gpsMain.createPolygon(gpsMain.currentCoords,polygons[i])
+                        gpsMain.createPolygon(_position,polygons[i]) /// test
+
                     }
                     console.log(polygons)
                 })
@@ -288,20 +300,22 @@ let gpsMain=
 
     /**
      * 
-     * @param {Json longitude,latitude } dstCoords 
+     * @param {Json lng,lat } dstCoords 
      * @returns {vector2  X, Z}
      */
-    coordinateToVirtualSpace(dstCoords)
+    coordinateToVirtualSpace(originCoords,dstCoords)
     {
+        
         let x,z;
-        //z = latitude
-        z = gpsMain.computeDistanceMeters({longitude:0 , latitude: gpsMain.currentCoords.latitude},{longitude:0, latitude:dstCoords.latitude})
-        z *= gpsMain.currentCoords.latitude> dstCoords.latitude ? -1:1
-        //x = longitude
-        x = gpsMain.computeDistanceMeters({longitude:gpsMain.currentCoords.longitude, latitude:0}, {longitude:dstCoords.longitude,latitude:0})
-        x *= gpsMain.currentCoords.longitude>dstCoords.longitude ? 1:-1 
+        //z = lat
+        z = gpsMain.computeDistanceMeters({lng:0 , lat: originCoords.lat},{lng:0, lat:dstCoords.lat})
+        z *= originCoords.lat> dstCoords.lat ? -1:1
+        //x = lng
+        x = gpsMain.computeDistanceMeters({lng:originCoords.lng, lat:0}, {lng:dstCoords.lng,lat:0})
+        x *= originCoords.lng>dstCoords.lng ? 1:-1;
         return new THREE.Vector2(x,z)
     },
+    
 
     createLitScene() {
         const scene = new THREE.Scene();
@@ -342,6 +356,20 @@ let gpsMain=
     
         return scene;
       },
+          /*
+        Distance in meters from coordinate
+     */
+    computeDistanceMeters: function (src, dest) {
+        var dlng = THREE.Math.degToRad(dest.lng - src.lng);
+        var dlat = THREE.Math.degToRad(dest.lat - src.lat);
+
+        var a = (Math.sin(dlat / 2) * Math.sin(dlat / 2)) + Math.cos(THREE.Math.degToRad(src.lat)) * Math.cos(THREE.Math.degToRad(dest.lat)) * (Math.sin(dlng / 2) * Math.sin(dlng / 2));
+        var angle = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var distance = angle * 6378160;
+
+
+        return distance;
+    },
       /**
      * Compute compass heading.
      *
@@ -427,6 +455,3 @@ let gpsMain=
     }
    
 }
-/**
-Test de actualizacion
-*/

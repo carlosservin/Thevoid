@@ -180,7 +180,7 @@ class App {
     this.camera.matrixAutoUpdate = false;
 
     //Richard 19.35979828879917, -98.98015526076556
-   // console.log( gpsMain.computeDistanceMeters({latitude:19.359937468701816,longitude: -98.98130324618646},{latitude:19.35979828879917,longitude: -98.98015526076556}));
+   // console.log( gpsMain.computeDistanceMeters({lat:19.359937468701816,lng: -98.98130324618646},{lat:19.35979828879917,lng: -98.98015526076556}));
       gpsMain.crearcuboReferencia(this.scene)
     console.log(this.camera)
     //gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
@@ -193,7 +193,9 @@ class App {
     if (!gpsMain.checkCalibrado)
     {
       gpsMain.checkCalibrado = true; 
-        gpsMain.createPolygon(gpsMain.testCoordinates,gpsMain.pivote)
+        //gpsMain.createPolygon(gpsMain.testCoordinates)
+        console.log(this.reticle)
+        gpsMain._loadVertexPolygon(this.reticle);
 
         //gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
         //  gpsMain.createPolygon(gpsMain.testCoordinates1,gpsMain.pivote)
