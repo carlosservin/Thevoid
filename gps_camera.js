@@ -57,7 +57,7 @@ let gpsMain=
                 {
                     gpsMain.currentCoords.lat = position.coords.latitude;
                     gpsMain.currentCoords.lng = position.coords.longitude;
-                    //document.getElementById("Test2").innerHTML =("lat: "+position.coords.lat + "lng: "+  position.coords.lng)
+                    document.getElementById("Test").innerHTML =("your lat: "+position.coords.latitude + "lng: "+  position.coords.longitude)
                 })
             } else {
                 x.innerHTML = "Geolocation is not supported by this browser.";
@@ -226,8 +226,7 @@ let gpsMain=
         console.log(reticle);
         console.log(gpsMain.pivote)
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
-        //gpsMain._getVertexPolygon({"lat":27.49945,"lng":-82.556287})
-        //gpsMain._getVertexPolygon({"lat":25.937701,"lng":-81.633494})
+        // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
         gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
@@ -247,7 +246,6 @@ let gpsMain=
         };
 
 
-        //const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
         const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}`;
         console.log(url)
         fetch(url)
@@ -269,8 +267,16 @@ let gpsMain=
                         {
                             //console.log(polygon[i].PolygonCoords)
                             //let p =
-                            gpsMain.createPolygon(_position,JSON.parse(polygon[i].PolygonCoords)[0])
-    
+                            //gpsMain.createPolygon(_position,JSON.parse(polygon[i].PolygonCoords))
+                            //console.log(Object.keys(polygon[i].PolygonCoords))
+                            let grupo = JSON.parse(polygon[i].PolygonCoords);
+                            for (let j = 0; j<grupo.length; j++)
+                            {
+                                gpsMain.createPolygon(_position,grupo[j])
+                                //console.log (grupo[j]);
+
+                            }
+                            
                         }
                     //console.log(polygons)
                     }else
@@ -327,7 +333,7 @@ let gpsMain=
         //x = lng
         x = gpsMain.computeDistanceMeters({lng:originCoords.lng, lat:0}, {lng:dstCoords.lng,lat:0})
         x *= originCoords.lng>dstCoords.lng ? 1:-1;
-        console.log("x: " + x + "  z:  "+z)
+        console.log("Distance:"+gpsMain.computeDistanceMeters(originCoords,dstCoords) )
         return new THREE.Vector2(x,z)
     },
     
