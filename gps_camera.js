@@ -199,35 +199,7 @@ let gpsMain=
         return angle;
     },
     
-    /**
-     * 
-     * @param {Array[json]} dstcoordinates 
-     */
-    createPolygon(originCoords,dstcoordinates)
-    {
-        let clon = ""
-        
-        // elliminar
-        const geometry = new THREE.BoxGeometry( .1, 2, .1 );
-        const material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
-        const cube = new THREE.Mesh( geometry, material );
-       const areaPts = [];
-       //fin
-       for (let i = 0;i<dstcoordinates.length; i++)
-        {
-           areaPts.push(gpsMain.coordinateToVirtualSpace(originCoords,dstcoordinates[i]));
-           
-           //elminar, test, referencia          
-          cube.position.set(areaPts[i].x,gpsMain.i,areaPts[i].y);
-          //console.log(new THREE.Vector2(0,0).distanceTo(xz))
-          //cube.position.set(1,gpsMain.i,1);       
-          clon = cube.clone();
-          gpsMain.pivote.add (clon)
-        };
-        const areaShape =new THREE.Shape( areaPts );
-        gpsMain.addShape(areaShape,0xff0000,gpsMain.pivote );     
-
-    },
+ 
     addShape:function(shape,color,parent)
     {
 
@@ -255,6 +227,7 @@ let gpsMain=
         console.log(gpsMain.pivote)
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
         //gpsMain._getVertexPolygon({"lat":27.49945,"lng":-82.556287})
+        //gpsMain._getVertexPolygon({"lat":25.937701,"lng":-81.633494})
         gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
@@ -274,7 +247,8 @@ let gpsMain=
         };
 
 
-        const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
+        //const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
+        const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}`;
         console.log(url)
         fetch(url)
         .then(res=>{
@@ -285,19 +259,20 @@ let gpsMain=
                     console.log(data.result)
                     if (data.result != "No record found")
                     {
-                    let polygons = JSON.parse( data.result[0].PolygonCoords)
-                    
+                    //let polygons = JSON.parse( data.result)
+                    //console.log(data.result.length)
 
-                    let polygonCouter =Object.keys(polygons).length
-
-                        for(let i = 0; i<polygonCouter;i++)
+                    let polygon =data.result
+                        // console.log( polygon[0]);
+                        // console.log(JSON.parse(polygon[0].PolygonCoords)[0])
+                        for(let i = 0; i<polygon.length;i++)
                         {
-                            console.log("--"+polygons[i].length )
-                            //gpsMain.createPolygon(gpsMain.currentCoords,polygons[i])
-                            gpsMain.createPolygon(_position,polygons[i]) /// test
+                            //console.log(polygon[i].PolygonCoords)
+                            //let p =
+                            gpsMain.createPolygon(_position,JSON.parse(polygon[i].PolygonCoords)[0])
     
                         }
-                    console.log(polygons)
+                    //console.log(polygons)
                     }else
                     {
                         document.getElementById("Test").innerHTML = "no polygon";
@@ -307,7 +282,35 @@ let gpsMain=
                 })
         })
    },
+   /**
+     * 
+     * @param {Array[json]} dstcoordinates 
+     */
+    createPolygon(originCoords,dstcoordinates)
+    {
+        let clon = ""
+        console.log(dstcoordinates);
+        // elliminar
+        // const geometry = new THREE.BoxGeometry( .1, 2, .1 );
+        // const material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
+        // const cube = new THREE.Mesh( geometry, material );
+       const areaPts = [];
+       //fin
+       for (let i = 0;i<dstcoordinates.length; i++)
+        {
+           areaPts.push(gpsMain.coordinateToVirtualSpace(originCoords,dstcoordinates[i]));
+           
+        //    //elminar, test, referencia          
+        //   cube.position.set(areaPts[i].x,gpsMain.i,areaPts[i].y);
+        //   //console.log(new THREE.Vector2(0,0).distanceTo(xz))
+        //   //cube.position.set(1,gpsMain.i,1);       
+        //   clon = cube.clone();
+        //   gpsMain.pivote.add (clon)
+        };
+        const areaShape =new THREE.Shape( areaPts );
+        gpsMain.addShape(areaShape,0xff0000,gpsMain.pivote );     
 
+    },
 
     /**
      * 
@@ -324,6 +327,7 @@ let gpsMain=
         //x = lng
         x = gpsMain.computeDistanceMeters({lng:originCoords.lng, lat:0}, {lng:dstCoords.lng,lat:0})
         x *= originCoords.lng>dstCoords.lng ? 1:-1;
+        console.log("x: " + x + "  z:  "+z)
         return new THREE.Vector2(x,z)
     },
     
