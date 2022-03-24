@@ -204,8 +204,8 @@ let gpsMain=
         console.log(reticle);
         console.log(gpsMain.pivote)
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
-         gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        //gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+        // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
+        gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -316,7 +316,7 @@ let gpsMain=
         //x = lng
         x = gpsMain.computeDistanceMeters({lng:originCoords.lng, lat:0}, {lng:dstCoords.lng,lat:0})
         x *= originCoords.lng>dstCoords.lng ? 1:-1;
-        console.log("Distance:"+gpsMain.computeDistanceMeters(originCoords,dstCoords) )
+        //console.log("Distance:"+gpsMain.computeDistanceMeters(originCoords,dstCoords) )
         return new THREE.Vector2(x,z)
     },
     
