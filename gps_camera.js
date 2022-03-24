@@ -198,36 +198,14 @@ let gpsMain=
         }
         return angle;
     },
-    
- 
-    addShape:function(shape,color,parent)
-    {
 
-
-        // flat shape
-        let geometry = new THREE.ShapeGeometry( shape );
-        let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
-
-        mesh.position.set( 0, 0, 0 );
-        mesh.rotation.set(1.5708,0,0);
-       
-        parent.add(mesh)
-        //line
-        shape.autoClose = true;
-        const points = shape.getPoints();
-        const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
-
-        let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
-	    mesh.add( line );
-
-    },
     _loadVertexPolygon:function(reticle)
     {
         console.log(reticle);
         console.log(gpsMain.pivote)
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
-        // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+         gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
+        //gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -261,18 +239,13 @@ let gpsMain=
                     //console.log(data.result.length)
 
                     let polygon =data.result
-                        // console.log( polygon[0]);
-                        // console.log(JSON.parse(polygon[0].PolygonCoords)[0])
+
                         for(let i = 0; i<polygon.length;i++)
                         {
-                            //console.log(polygon[i].PolygonCoords)
-                            //let p =
-                            //gpsMain.createPolygon(_position,JSON.parse(polygon[i].PolygonCoords))
-                            //console.log(Object.keys(polygon[i].PolygonCoords))
                             let grupo = JSON.parse(polygon[i].PolygonCoords);
                             for (let j = 0; j<grupo.length; j++)
                             {
-                                gpsMain.createPolygon(_position,grupo[j])
+                                gpsMain.createPolygon(_position,grupo[j],polygon[i].color)
                                 //console.log (grupo[j]);
 
                             }
@@ -292,29 +265,39 @@ let gpsMain=
      * 
      * @param {Array[json]} dstcoordinates 
      */
-    createPolygon(originCoords,dstcoordinates)
+    createPolygon(originCoords,dstcoordinates, color)
     {
         let clon = ""
-        console.log(dstcoordinates);
-        // elliminar
-        // const geometry = new THREE.BoxGeometry( .1, 2, .1 );
-        // const material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
-        // const cube = new THREE.Mesh( geometry, material );
+        //console.log(dstcoordinates);
        const areaPts = [];
-       //fin
        for (let i = 0;i<dstcoordinates.length; i++)
         {
            areaPts.push(gpsMain.coordinateToVirtualSpace(originCoords,dstcoordinates[i]));
-           
-        //    //elminar, test, referencia          
-        //   cube.position.set(areaPts[i].x,gpsMain.i,areaPts[i].y);
-        //   //console.log(new THREE.Vector2(0,0).distanceTo(xz))
-        //   //cube.position.set(1,gpsMain.i,1);       
-        //   clon = cube.clone();
-        //   gpsMain.pivote.add (clon)
         };
         const areaShape =new THREE.Shape( areaPts );
-        gpsMain.addShape(areaShape,0xff0000,gpsMain.pivote );     
+        gpsMain.addShape(areaShape,color,gpsMain.pivote );  
+
+    },       
+ 
+    addShape:function(shape,color,parent)
+    {
+
+
+        // flat shape
+        let geometry = new THREE.ShapeGeometry( shape );
+        let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
+
+        mesh.position.set( 0, 0, 0 );
+        mesh.rotation.set(1.5708,0,0);
+       
+        parent.add(mesh)
+        //line
+        shape.autoClose = true;
+        const points = shape.getPoints();
+        const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
+
+        let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
+	    mesh.add( line );
 
     },
 
