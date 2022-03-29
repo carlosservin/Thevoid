@@ -106,7 +106,7 @@ let gpsMain=
     {
         for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
         {
-            gpsMain.polygonsTxt[i].lookAt(gpsMain.pivote.position)
+            gpsMain.polygonsTxt[i].lookAt(gpsMain.pose.transform.position)
         }
     },
     angulo180(x)
@@ -216,8 +216,8 @@ let gpsMain=
         console.log(gpsMain.pivote)
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862})
-       // gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+        // gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -252,8 +252,8 @@ let gpsMain=
 
                     let polygon =data.result
 
-                        // for(let i = 0; i<polygon.length;i++)
-                        for(let i = 0; i<1;i++)
+                        for(let i = 0; i<polygon.length;i++)
+                        // for(let i = 0; i<1;i++)
                         {
                             let grupo = JSON.parse(polygon[i].PolygonCoords);
                             gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
