@@ -1,5 +1,10 @@
 let gpsMain= 
 {   
+    camera :"",
+    canvas:"",
+    maxDistance : 200, //meters
+    polygonsTxt:[],
+    font:"",
     originCoords :
         {
             lat:0,
@@ -57,7 +62,7 @@ let gpsMain=
                 {
                     gpsMain.currentCoords.lat = position.coords.latitude;
                     gpsMain.currentCoords.lng = position.coords.longitude;
-                    document.getElementById("Test").innerHTML =("your lat: "+position.coords.latitude + "lng: "+  position.coords.longitude)
+                    //document.getElementById("Test").innerHTML =("your lat: "+position.coords.latitude + "lng: "+  position.coords.longitude)
                 })
             } else {
                 x.innerHTML = "Geolocation is not supported by this browser.";
@@ -95,6 +100,13 @@ let gpsMain=
         }else
         {
 
+        }
+    },
+    updatePolygonsTxt()
+    {
+        for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
+        {
+            gpsMain.polygonsTxt[i].lookAt(gpsMain.pivote.position)
         }
     },
     angulo180(x)
@@ -156,13 +168,12 @@ let gpsMain=
          plane.position.set(00,-1,0)
          plane.rotation.set(1.5708,1.5708*2,0);
          
-        //
-        // const geometry = new THREE.BoxGeometry( .1, .1, .8 );
-        // const material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
-        // const cube = new THREE.Mesh( geometry, material );
-        // cube. position.set(0,-1.5,0);
-        // //cube.visible = false;
-        // //scene.add(cube)
+        
+
+        // cube. position.set(1.5,0,1.5);
+        //cube.visible = false;
+        // scene.add(cube)
+        // console.log (cube)
         const referencia = new THREE.Object3D();
         //referencia.add(plane)
         gpsMain.cubeRF = referencia;
@@ -181,7 +192,7 @@ let gpsMain=
         scene.add(gpsMain.pivote);
         //gpsMain.pivote.materials[0].color = 0xffffff
     },
-    
+
     normalizeAngle0_360(angle){
         if (angle<0)
         {
@@ -205,7 +216,8 @@ let gpsMain=
         console.log(gpsMain.pivote)
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+        gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862})
+       // gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -240,12 +252,15 @@ let gpsMain=
 
                     let polygon =data.result
 
-                        for(let i = 0; i<polygon.length;i++)
+                        // for(let i = 0; i<polygon.length;i++)
+                        for(let i = 0; i<1;i++)
                         {
                             let grupo = JSON.parse(polygon[i].PolygonCoords);
+                            gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
                             for (let j = 0; j<grupo.length; j++)
+                            // for (let j = 0; j<1; j++)
                             {
-                                gpsMain.createPolygon(_position,grupo[j],polygon[i].color)
+                                gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].Name)
                                 //console.log (grupo[j]);
 
                             }
@@ -256,18 +271,52 @@ let gpsMain=
                     {
                         document.getElementById("Test").innerHTML = "no polygon";
                     }
-
-                    
                 })
         })
+   },
+   createcubeTest()
+   {
+        const geometryc = new THREE.BoxGeometry( 1, 1, 1 );
+        const materialc = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
+        const cube = new THREE.Mesh( geometryc, materialc );
+        return cube;
+   },
+   createText(txt,color,parent,position)
+   {
+    
+    	const matLite = new THREE.MeshBasicMaterial( {
+		    color: color,
+            side: THREE.DoubleSide
+        } );
+        const message = txt;
+
+        const shapes = gpsMain.font.generateShapes( message, .6 );
+
+        const geometry = new THREE.ShapeGeometry( shapes );
+
+        geometry.computeBoundingBox();
+
+        const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+
+        geometry.translate( xMid, 0, 0 );
+
+        // make shape ( N.B. edge view not visible )
+
+        const text = new THREE.Mesh( geometry, matLite );
+
+        text.position.copy(position)
+        text.position.z -=1;
+        parent.add(text);
+        gpsMain.polygonsTxt.push(text);
+                
+    
    },
    /**
      * 
      * @param {Array[json]} dstcoordinates 
      */
-    createPolygon(originCoords,dstcoordinates, color)
+    createPolygon(originCoords,dstcoordinates, color,name)
     {
-        let clon = ""
         //console.log(dstcoordinates);
        const areaPts = [];
        for (let i = 0;i<dstcoordinates.length; i++)
@@ -275,31 +324,63 @@ let gpsMain=
            areaPts.push(gpsMain.coordinateToVirtualSpace(originCoords,dstcoordinates[i]));
         };
         const areaShape =new THREE.Shape( areaPts );
-        gpsMain.addShape(areaShape,color,gpsMain.pivote );  
-
+        let centerP = gpsMain.centerPolygon(areaPts);
+        gpsMain.addShape(areaShape,color,gpsMain.pivote,centerP,name ); 
     },       
  
-    addShape:function(shape,color,parent)
+    addShape:function(shape,color,parent,center,name)
     {
-
-
+        
         // flat shape
         let geometry = new THREE.ShapeGeometry( shape );
         let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
 
+        // cube =gpsMain.createcubeTest();
+        // mesh.add(cube);
+        // cube.position.copy(center)
+        gpsMain.createText(name,0xf0f0f0, mesh, center);
+        //mesh.add(meshTxt);
+        //meshTxt.position.copy(center);
+        //console.log (meshTxt)
+        // let test;
+
         mesh.position.set( 0, 0, 0 );
         mesh.rotation.set(1.5708,0,0);
-       
-        parent.add(mesh)
+        parent.add(mesh)       
+        
+
         //line
         shape.autoClose = true;
         const points = shape.getPoints();
         const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
 
         let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
-	    mesh.add( line );
-
+	    mesh.add( line );      
+        
     },
+    centerPolygon(points)
+    {
+        let x=0,y=0;
+        for(let i = 0; i<points.length; i++)
+        {
+            x+= points[i].x;
+            y+= points[i].y; 
+        }
+        x = x/points.length;
+        y = y/points.length;
+        return new THREE.Vector3(x,y,0);
+    },
+    createLabel:function(txthtml,_url,name)
+    {
+        const labelContainerElem = document.querySelector('#labels');
+        const elem = document.createElement('div');
+        //elem.setAttribute('href',_url)
+        elem.innerHTML = '<a href="'+_url+'">'+"<p>"+name+"<\/p></a> "+txthtml ;
+        //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")
+        labelContainerElem.appendChild(elem);
+        //return elem;
+    },
+
 
     /**
      * 
@@ -317,7 +398,10 @@ let gpsMain=
         x = gpsMain.computeDistanceMeters({lng:originCoords.lng, lat:0}, {lng:dstCoords.lng,lat:0})
         x *= originCoords.lng>dstCoords.lng ? 1:-1;
         //console.log("Distance:"+gpsMain.computeDistanceMeters(originCoords,dstCoords) )
+        if (gpsMain.computeDistanceMeters(originCoords,dstCoords)<gpsMain.maxDistance)
+        {
         return new THREE.Vector2(x,z)
+        }
     },
     
 
@@ -456,6 +540,14 @@ let gpsMain=
         }
 
         return eventName
+    },
+    loadFont:function()
+    {
+        const loader = new THREE.FontLoader();
+        loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) 
+        {
+            gpsMain.font = font;
+        })
     }
    
 }
