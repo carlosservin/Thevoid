@@ -106,7 +106,7 @@ let gpsMain=
     {
         for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
         {
-            gpsMain.polygonsTxt[i].lookAt(gpsMain.pose.transform.position)
+            gpsMain.polygonsTxt[i].lookAt(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.y,gpsMain.pose.transform.position.z)
         }
     },
     angulo180(x)
@@ -255,14 +255,17 @@ let gpsMain=
                         for(let i = 0; i<polygon.length;i++)
                         // for(let i = 0; i<1;i++)
                         {
-                            let grupo = JSON.parse(polygon[i].PolygonCoords);
-                            gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
-                            for (let j = 0; j<grupo.length; j++)
-                            // for (let j = 0; j<1; j++)
+                            if (polygon[i].distance<= 0.125) // 0.125 millas = 201 meters
                             {
-                                gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].Name)
-                                //console.log (grupo[j]);
+                                let grupo = JSON.parse(polygon[i].PolygonCoords);
+                                gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
+                                for (let j = 0; j<grupo.length; j++)
+                                // for (let j = 0; j<1; j++)
+                                {
+                                    gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].Name)
+                                    //console.log (grupo[j]);
 
+                                }
                             }
                             
                         }
@@ -307,6 +310,7 @@ let gpsMain=
         text.position.copy(position)
         text.position.z -=1;
         parent.add(text);
+        console.log (text)
         gpsMain.polygonsTxt.push(text);
                 
     
@@ -398,10 +402,9 @@ let gpsMain=
         x = gpsMain.computeDistanceMeters({lng:originCoords.lng, lat:0}, {lng:dstCoords.lng,lat:0})
         x *= originCoords.lng>dstCoords.lng ? 1:-1;
         //console.log("Distance:"+gpsMain.computeDistanceMeters(originCoords,dstCoords) )
-        if (gpsMain.computeDistanceMeters(originCoords,dstCoords)<gpsMain.maxDistance)
-        {
+
         return new THREE.Vector2(x,z)
-        }
+        
     },
     
 
