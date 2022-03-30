@@ -23,7 +23,8 @@
       navigator.xr.isSessionSupported &&
       await navigator.xr.isSessionSupported("immersive-ar");
   if (isArSessionSupported) {
-    document.getElementById("enter-ar").addEventListener("click", window.app.activateXR); console.log ("sii"); gpsMain.SetCameraGps(); 
+    document.getElementById("enter-ar").addEventListener("click", window.app.activateXR); 
+    gpsMain.SetCameraGps(); 
   } else {
     onNoXRDevice(); console.log ("nooo")
   }
@@ -201,6 +202,7 @@ class App {
 
     //Richard 19.35979828879917, -98.98015526076556
     this.createPoligon = false;
+    gpsMain._loadVertexPolygon();
     gpsMain.camera = this.camera;
     gpsMain.canvas = this.canvas;
     gpsMain.crearcuboReferencia(this.scene)
@@ -215,28 +217,12 @@ class App {
     if (!gpsMain.checkCalibrado&& this.createPoligon)
     {
 
-      
+      // falta colocar el pivote en la altura del reticle
+
       gpsMain.checkCalibrado = true; 
-        //gpsMain.createPolygon(gpsMain.testCoordinates)
-        gpsMain._loadVertexPolygon(this.reticle);
-
-        //gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
-        //  gpsMain.createPolygon(gpsMain.testCoordinates1,gpsMain.pivote)
-        //  gpsMain.createPolygon(gpsMain.testCoordinates2,gpsMain.pivote)
-
-      
-    // }
-    // if (window.sunflower) {
-
-
-      
-    //   console.log("xxxx")
-    //   // const clone = window.sunflower.clone();
-    //   // clone.position.copy(this.reticle.position);
-    //   // this.scene.add(clone)
-  
-    //   // const shadowMesh = this.scene.children.find(c => c.name === 'shadowMesh');
-    //   // shadowMesh.position.y = clone.position.y;
+      gpsMain.setPivote(this.reticle)
+      gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
+       
      }
   }
 }

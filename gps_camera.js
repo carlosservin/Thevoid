@@ -5,6 +5,7 @@ let gpsMain=
     maxDistance : 200, //meters
     polygonsTxt:[],
     font:"",
+    dataAPI:"",
     originCoords :
         {
             lat:0,
@@ -209,12 +210,18 @@ let gpsMain=
         }
         return angle;
     },
-
-    _loadVertexPolygon:function(reticle)
+    // funcion ya no se ocupa ellimiar
+    setPivote(reticle)
     {
         console.log(reticle);
         console.log(gpsMain.pivote)
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
+    },
+
+    _loadVertexPolygon:function()
+    {
+        console.log("pedir data")
+        
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
         // gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
        gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
@@ -244,38 +251,47 @@ let gpsMain=
             res.json()
             .then(data=>
                 {
-                    console.log(data.result)
-                    if (data.result != "No record found")
-                    {
-                    //let polygons = JSON.parse( data.result)
-                    //console.log(data.result.length)
-
-                    let polygon =data.result
-
-                        for(let i = 0; i<polygon.length;i++)
-                        // for(let i = 0; i<1;i++)
-                        {
-                            if (polygon[i].distance<= 0.125) // 0.125 millas = 201 meters
-                            {
-                                let grupo = JSON.parse(polygon[i].PolygonCoords);
-                                gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
-                                for (let j = 0; j<grupo.length; j++)
-                                // for (let j = 0; j<1; j++)
-                                {
-                                    gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].Name)
-                                    //console.log (grupo[j]);
-
-                                }
-                            }
-                            
-                        }
-                    //console.log(polygons)
-                    }else
-                    {
-                        document.getElementById("Test").innerHTML = "no polygon";
-                    }
+                    gpsMain.dataAPI = {data,_position};
+                    //gpsMain.createPolygonsAPI(_position,data)
                 })
         })
+   },
+   createPolygonsAPI(_position,data)
+   {
+        console.log(data.result)
+        if (data.result != "No record found")
+        {
+        //let polygons = JSON.parse( data.result)
+        //console.log(data.result.length)
+
+        let polygon =data.result
+
+            for(let i = 0; i<polygon.length;i++)
+            // for(let i = 0; i<1;i++)
+            {
+                if (polygon[i].distance<= 0.125) // 0.125 millas = 201 meters
+                {
+                    let grupo = JSON.parse(polygon[i].PolygonCoords);
+                    gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
+                    for (let j = 0; j<grupo.length; j++)
+                    // for (let j = 0; j<1; j++)
+                    {
+                        gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].Name)
+                        //console.log (grupo[j]);
+
+                    }
+                }
+                else
+                {
+                    document.getElementById("Test").innerHTML = "no hay poligonos cerca"
+                }
+                
+            }
+        //console.log(polygons)
+        }else
+        {
+            document.getElementById("Test").innerHTML = "no polygon";
+        }
    },
    createcubeTest()
    {
@@ -310,10 +326,7 @@ let gpsMain=
         text.position.copy(position)
         text.position.z -=1;
         parent.add(text);
-        console.log (text)
-        gpsMain.polygonsTxt.push(text);
-                
-    
+        gpsMain.polygonsTxt.push(text);           
    },
    /**
      * 
