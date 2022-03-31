@@ -96,7 +96,7 @@ class App {
     /** Start a rendering loop using this.onXRFrame. */
     this.xrSession.requestAnimationFrame(this.onXRFrame);
                                                                                 
-    this.xrSession.addEventListener("select", this.onSelect);
+    //this.xrSession.addEventListener("select", this.onSelect);
   }
 
   /**
@@ -135,39 +135,46 @@ class App {
     //   /** If we have results, consider the environment stabilized. */
       if (!this.stabilized && hitTestResults.length > 0) {
         this.stabilized = true;
-        document.body.classList.add('stabilized');                                
+        //document.body.classList.add('stabilized');                                
       }
       if (hitTestResults.length > 0) {
         const hitPose = hitTestResults[0].getPose(this.localReferenceSpace);  
-    //     /** Update the reticle position. */
-        this.reticle.visible = true;
-        this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
-        this.reticle.updateMatrixWorld(true);
-        this.createPoligon = true
-        gpsMain.updateRotation(hitPose.transform)   
+
+        gpsMain.updateRotation(hitPose.transform)
+        if (!gpsMain.checkCalibrado)
+        {
+              //     /** Update the reticle position. */
+          this.reticle.visible = true;
+          this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
+          this.reticle.updateMatrixWorld(true);
+          document.querySelector('#calibrating').style.display = 'block';
+          if(this.time <2)
+          {
+            this.time+= this.reloj.getDelta()
+            if (this.reticle.position.y<.5)
+            {
+              this.floor = this.reticle.position.y;
+            }
+          }
+          else
+          {
+            gpsMain.checkCalibrado = true;
+            console.log(this.reticle.position.y)
+            console.log("termino de calibrar")
+            gpsMain.checkCalibrado = true; 
+            gpsMain.setPivote(this.floor)
+            gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
+            document.body.classList.add('stabilized');
+            this.reticle.visible = false;
+            document.querySelector('#calibrating').style.display = 'none';
+      
+          }  
+        }
       }
 
-      gpsMain.pose = pose;
-                                                                          
+      gpsMain.pose = pose;                                                                        
 
-      if (gpsMain.checkCalibrado)
-      {
-        // update the picking ray with the camera and pointer position
-        // this.raycaster.setFromCamera( new THREE.Vector2(0,0), this.camera ); 
-        // //this.raycaster.set (pose.transform.position,this.reticle.position.normalize)
-        // // calculate objects intersecting the picking ray
-        // //console.log(gpsMain.pivote)
-        // const intersects = this.raycaster.intersectObject( this.scene.children );
-        // if ( intersects.length > 0 ) {
-        //   console.log(intersects[ i ].object)                
-        // }
-        //console.log(this.hitTestSource)
-
-      }
-
-      //document.getElementById("Test2").innerHTML ="x "+pose.transform.position.x+" y: "+pose.transform.position.y+"z"+pose.transform.position.z
-
-
+     
       /** Render the scene with THREE.WebGLRenderer. */
       this.renderer.render(this.scene, this.camera)
     }
@@ -203,28 +210,29 @@ class App {
     this.camera = new THREE.PerspectiveCamera();
     this.camera.matrixAutoUpdate = false;
 
-    //Richard 19.35979828879917, -98.98015526076556
-    this.createPoligon = false;
     gpsMain._loadVertexPolygon();
     gpsMain.camera = this.camera;
     gpsMain.canvas =document.getElementById("container");  //this.canvas;
     gpsMain.crearcuboReferencia(this.scene)
     gpsMain.loadFont();
+    this.reloj = new THREE.Clock()
+    this.time=0;
+    this.floor =0;
     //gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
 
     // this.scene.add(cube);
   }
 
   /** Place a sunflower when the screen is tapped. */
-  onSelect = () => {
-    if (!gpsMain.checkCalibrado&& this.createPoligon)
-    {
-      gpsMain.checkCalibrado = true; 
-      gpsMain.setPivote(this.reticle)
-      gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
+  // onSelect = () => {
+  //   if (!gpsMain.checkCalibrado&& this.createPoligon)
+  //   {
+  //     gpsMain.checkCalibrado = true; 
+  //     gpsMain.setPivote(this.reticle)
+  //     gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
        
-     }
-  }
+  //    }
+  // }
 }
 
 window.app = new App();

@@ -249,11 +249,9 @@ let gpsMain=
         return angle;
     },
     // funcion ya no se ocupa ellimiar
-    setPivote(reticle)
+    setPivote(floor)
     {
-        console.log(reticle);
-        console.log(gpsMain.pivote)
-        gpsMain.pivote.position.set(gpsMain.pivote.position.x,reticle.position.y,gpsMain.pivote.position.z);
+        gpsMain.pivote.position.set(gpsMain.pivote.position.x,floor,gpsMain.pivote.position.z);
     },
 
     _loadVertexPolygon:function()

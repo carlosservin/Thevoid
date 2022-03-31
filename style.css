@@ -7,6 +7,15 @@ body {
   height: 100vh;
   overflow: hidden;
 }
+#calibrating {
+  position: absolute;
+  top: 90%;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  background-color:DodgerBlue;
+  display:none
+}
 #labels {
   position: absolute;  /* let us position ourself inside the container */
   z-index: 0;          /* make a new stacking context so children don't sort with rest of page */
