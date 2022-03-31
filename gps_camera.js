@@ -103,11 +103,49 @@ let gpsMain=
 
         }
     },
-    updatePolygonsTxt()
+    updatePolygonsTxt(matrixWorldInverse,projectionMatrix)
     {
         for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
         {
-            gpsMain.polygonsTxt[i].lookAt(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.y,gpsMain.pose.transform.position.z)
+            //gpsMain.polygonsTxt[i].lookAt(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.y,gpsMain.pose.transform.position.z)
+                 
+            // get the position of the center of the cube
+            let tempV = new THREE.Vector3;
+            let distance = tempV.distanceTo(new THREE.Vector3(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.z,gpsMain.pose.transform.position.y));
+            gpsMain.polygonsTxt[i].center.position.z =-1//( -20 * Math.floor(distance))-2;
+
+            gpsMain.polygonsTxt[i].center.updateWorldMatrix(true, false);
+            gpsMain.polygonsTxt[i].center.getWorldPosition(tempV);
+            //console.log(distance.toFixed(2))
+            // get the normalized screen coordinate of that position
+            // x and y will be in the -1 to +1 range with x = -1 being
+            // on the left and y = -1 being on the bottom            
+            tempV =  tempV.applyMatrix4(new THREE.Matrix4().fromArray(matrixWorldInverse) ).applyMatrix4( new THREE.Matrix4().fromArray(projectionMatrix) );
+            //tempV.project(camera);
+            //console.log(tempV)
+            
+            //console.log(distance)
+            // console.log((THREE.Math.lerp(0,200,distance)))
+            //console.log(distance/200)
+            // console.log (new THREE.Matrix4().fromArray(projectionMatrix))
+            // console.log (projectionMatrix )
+            let elem = gpsMain.polygonsTxt[i].elem;
+            if ( Math.abs(tempV.z) > 1)
+            {
+                elem.style.display = 'none';
+            }else
+            {
+                // convert the normalized position to CSS coordinates
+                const x = (tempV.x *  .5 + .5) * gpsMain.canvas.clientWidth;
+                const y = (tempV.y * -.5 + .5) * gpsMain.canvas.clientHeight;
+               
+                elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
+                elem.style.display = '';
+                // const x = (.5) * gpsMain.canvas.clientWidth;
+                // const y = (-.5) * gpsMain.canvas.clientHeight;
+                // let elem = gpsMain.polygonsTxt[i].elem;
+                // elem.style.transform = `translate(${x}px,${y}px)`;
+            }
         }
     },
     angulo180(x)
@@ -223,8 +261,8 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        // gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+        gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+    //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -272,11 +310,11 @@ let gpsMain=
                 if (polygon[i].distance<= 0.125) // 0.125 millas = 201 meters
                 {
                     let grupo = JSON.parse(polygon[i].PolygonCoords);
-                    gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
+                    //gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
                     for (let j = 0; j<grupo.length; j++)
                     // for (let j = 0; j<1; j++)
                     {
-                        gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].Name)
+                        gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].html,polygon[i].url,polygon[i].Name)
                         //console.log (grupo[j]);
 
                     }
@@ -332,7 +370,7 @@ let gpsMain=
      * 
      * @param {Array[json]} dstcoordinates 
      */
-    createPolygon(originCoords,dstcoordinates, color,name)
+    createPolygon(originCoords,dstcoordinates, color,_html,_url,name)
     {
         //console.log(dstcoordinates);
        const areaPts = [];
@@ -342,20 +380,23 @@ let gpsMain=
         };
         const areaShape =new THREE.Shape( areaPts );
         let centerP = gpsMain.centerPolygon(areaPts);
-        gpsMain.addShape(areaShape,color,gpsMain.pivote,centerP,name ); 
+        gpsMain.addShape(areaShape,color,gpsMain.pivote,centerP,_html,_url,name ); 
     },       
  
-    addShape:function(shape,color,parent,center,name)
+    addShape:function(shape,color,parent,_center,_html,_url,name)
     {
         
         // flat shape
         let geometry = new THREE.ShapeGeometry( shape );
         let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
+        let center = new THREE.Object3D();
+        mesh.add(center)
+        center.position.copy (_center);
+        let elem = gpsMain.createLabel(_html,_url, name);
+        gpsMain.polygonsTxt.push({center,elem});  
+        
 
-        // cube =gpsMain.createcubeTest();
-        // mesh.add(cube);
-        // cube.position.copy(center)
-        gpsMain.createText(name,0xf0f0f0, mesh, center);
+        //gpsMain.createText(name,0xf0f0f0, mesh, center);
         //mesh.add(meshTxt);
         //meshTxt.position.copy(center);
         //console.log (meshTxt)
@@ -372,7 +413,15 @@ let gpsMain=
         const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
 
         let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
-	    mesh.add( line );      
+	    mesh.add( line );
+        // let cube =gpsMain.createcubeTest();
+        // gpsMain.pivote.parent.add(cube);
+        // let tempV = new THREE.Vector3;
+        // center.updateWorldMatrix(true, false);
+        // center.getWorldPosition(tempV);
+        // cube.position.copy(tempV)
+        // console.log(tempV)
+        //     console.log("----")      
         
     },
     centerPolygon(points)
@@ -395,7 +444,7 @@ let gpsMain=
         elem.innerHTML = '<a href="'+_url+'">'+"<p>"+name+"<\/p></a> "+txthtml ;
         //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")
         labelContainerElem.appendChild(elem);
-        //return elem;
+        return elem;
     },
 
 

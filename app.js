@@ -62,8 +62,9 @@ class App {
   /**
    * Add a canvas element and initialize a WebGL context that is compatible with WebXR.
    */
-  createXRCanvas() {
+  createXRCanvas() {    
     this.canvas = document.createElement("canvas");
+    //document.getElementById("container").appendChild(this.canvas)
     document.body.appendChild(this.canvas);
     this.gl = this.canvas.getContext("webgl", {xrCompatible: true});
 
@@ -121,10 +122,12 @@ class App {
       const viewport = this.xrSession.renderState.baseLayer.getViewport(view);
       this.renderer.setSize(viewport.width, viewport.height)
     //
+    gpsMain.updatePolygonsTxt(view.transform.inverse.matrix,view.projectionMatrix);     
       /** Use the view's transform matrix and projection matrix to configure the THREE.camera. */
       this.camera.matrix.fromArray(view.transform.matrix)
       this.camera.projectionMatrix.fromArray(view.projectionMatrix);
       this.camera.updateMatrixWorld(true);   
+      
     
     //   /** Conduct hit test. */
       const hitTestResults = frame.getHitTestResults(this.hitTestSource);
@@ -142,10 +145,10 @@ class App {
         this.reticle.updateMatrixWorld(true);
         this.createPoligon = true
         gpsMain.updateRotation(hitPose.transform)   
-        gpsMain.updatePolygonsTxt();                                                                               
       }
 
       gpsMain.pose = pose;
+                                                                          
 
       if (gpsMain.checkCalibrado)
       {
@@ -204,7 +207,7 @@ class App {
     this.createPoligon = false;
     gpsMain._loadVertexPolygon();
     gpsMain.camera = this.camera;
-    gpsMain.canvas = this.canvas;
+    gpsMain.canvas =document.getElementById("container");  //this.canvas;
     gpsMain.crearcuboReferencia(this.scene)
     gpsMain.loadFont();
     //gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
@@ -216,9 +219,6 @@ class App {
   onSelect = () => {
     if (!gpsMain.checkCalibrado&& this.createPoligon)
     {
-
-      // falta colocar el pivote en la altura del reticle
-
       gpsMain.checkCalibrado = true; 
       gpsMain.setPivote(this.reticle)
       gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
