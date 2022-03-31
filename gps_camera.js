@@ -2,7 +2,6 @@ let gpsMain=
 {   
     camera :"",
     canvas:"",
-    maxDistance : 200, //meters
     polygonsTxt:[],
     font:"",
     dataAPI:"",
@@ -259,8 +258,8 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-    //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+        // gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -305,7 +304,7 @@ let gpsMain=
             for(let i = 0; i<polygon.length;i++)
             // for(let i = 0; i<1;i++)
             {
-                if (polygon[i].distance<= 0.125) // 0.125 millas = 201 meters
+                if (polygon[i].distance<= 0.62) // 0.621371 millas = 1000 meters
                 {
                     let grupo = JSON.parse(polygon[i].PolygonCoords);
                     //gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
@@ -316,12 +315,11 @@ let gpsMain=
                         //console.log (grupo[j]);
 
                     }
-                }
-                else
-                {
-                    document.getElementById("Test").innerHTML = "no hay poligonos cerca"
-                }
-                
+                }                
+            }
+            if (gpsMain.polygonsTxt.length == 0)
+            {
+                document.getElementById("Test").innerHTML = "no hay poligonos cerca"
             }
         //console.log(polygons)
         }else
@@ -439,7 +437,8 @@ let gpsMain=
         const labelContainerElem = document.querySelector('#labels');
         const elem = document.createElement('div');
         //elem.setAttribute('href',_url)
-        elem.innerHTML = '<a href="'+_url+'">'+"<p>"+name+"<\/p></a> "+txthtml ;
+        
+        elem.innerHTML = '<a href="'+_url+'">'+'<p>'+name+"<\/p></a>"+txthtml ;
         //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")
         labelContainerElem.appendChild(elem);
         return elem;

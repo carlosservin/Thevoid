@@ -13,7 +13,7 @@ body {
   width: 100%;
   text-align: center;
   font-size: 18px;
-  background-color:DodgerBlue;
+  background-color:rgb(232, 242, 251);
   display:none
 }
 #labels {
@@ -21,7 +21,8 @@ body {
   z-index: 0;          /* make a new stacking context so children don't sort with rest of page */
   left: 0;             /* make our position the top left of the container */
   top: 0;
-  color: white;
+  color: rgb(0, 0, 0);
+  
 }
 #labels>div {
   white-space: nowrap;
@@ -32,14 +33,17 @@ body {
   font-size: large;
   user-select: none;   /* don't let the text get selected */
   text-shadow:         /* create a black outline */
-  -1px -1px 0 #000,
-  0   -1px 0 #000,
-  1px -1px 0 #000,
-  1px  0   0 #000,
-  1px  1px 0 #000,
-  0    1px 0 #000,
-  -1px  1px 0 #000,
-  -1px  0   0 #000;
+  -1px -1px 0 rgb(255, 255, 255),
+  0   -1px 0 rgb(255, 255, 255),
+  1px -1px 0 rgb(255, 255, 255),
+  1px  0   0 rgb(255, 255, 255),
+  1px  1px 0 rgb(255, 255, 255),
+  0    1px 0 rgb(255, 255, 255),
+  -1px  1px 0 rgb(255, 255, 255),
+  -1px  0   0 rgb(255, 255, 255);
+  background-color:DodgerBlue;
+  border-radius: 10px;
+  border: 10px solid DodgerBlue;
 }
 #labels>div:hover {
   color: red;
