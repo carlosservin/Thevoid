@@ -12,6 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+let pointer = new THREE.Vector2();
+let tocando = false
+
+function onPointerdown( event ) {
+
+  // calculate pointer position in normalized device coordinates
+  // (-1 to +1) for both components
+
+  pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+tocando = true;
+}
+function onPointerup( event ) {
+  tocando = false;
+}
 
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
@@ -172,7 +187,26 @@ class App {
         }
       }
 
-      gpsMain.pose = pose;                                                                        
+      gpsMain.pose = pose;
+      /*
+      ray cast*/
+      if (tocando)
+      {
+        this.raycaster.setFromCamera( pointer, this.camera );
+        const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
+        //const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
+        if (intersects.length>0)
+        {
+          if (intersects[0].object.isPolygon)
+          {
+            if (!intersects[0].object.openInfo)
+            {
+              gpsMain.openElemen(intersects[0].object);
+            }          
+          }                                                            
+
+        }
+      }
 
      
       /** Render the scene with THREE.WebGLRenderer. */
@@ -214,13 +248,14 @@ class App {
     gpsMain.camera = this.camera;
     gpsMain.canvas =document.getElementById("container");  //this.canvas;
     gpsMain.crearcuboReferencia(this.scene)
-    gpsMain.loadFont();
     this.reloj = new THREE.Clock()
     this.time=0;
     this.floor =0;
-    //gpsMain._getVertexPolygon({"lat":27.4995,"lng":-82.556286})
+    this.raycaster = new THREE.Raycaster();
 
-    // this.scene.add(cube);
+    window.addEventListener( 'pointerdown', onPointerdown );
+    window.addEventListener( 'pointerup', onPointerup );
+    
   }
 
   /** Place a sunflower when the screen is tapped. */
@@ -233,6 +268,10 @@ class App {
        
   //    }
   // }
+
+
 }
+
+
 
 window.app = new App();

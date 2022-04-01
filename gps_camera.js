@@ -102,7 +102,8 @@ let gpsMain=
 
         }
     },
-    updatePolygonsTxt(matrixWorldInverse,projectionMatrix)
+
+    updatePolygonsTxt(matrixWorldInverse,projectionMatrix)// eliminar
     {
         for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
         {
@@ -110,7 +111,7 @@ let gpsMain=
                  
             // get the position of the center of the cube
             let tempV = new THREE.Vector3;
-            let distance = tempV.distanceTo(new THREE.Vector3(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.z,gpsMain.pose.transform.position.y));
+            // let distance = tempV.distanceTo(new THREE.Vector3(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.z,gpsMain.pose.transform.position.y));
             gpsMain.polygonsTxt[i].center.position.z =-1//( -20 * Math.floor(distance))-2;
 
             gpsMain.polygonsTxt[i].center.updateWorldMatrix(true, false);
@@ -139,13 +140,21 @@ let gpsMain=
                 const y = (tempV.y * -.5 + .5) * gpsMain.canvas.clientHeight;
                
                 elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
-                elem.style.display = '';
-                // const x = (.5) * gpsMain.canvas.clientWidth;
-                // const y = (-.5) * gpsMain.canvas.clientHeight;
-                // let elem = gpsMain.polygonsTxt[i].elem;
-                // elem.style.transform = `translate(${x}px,${y}px)`;
+                elem.style.display = '';                
             }
         }
+    },
+    openElemen(mesh)
+    {
+        mesh.openInfo = true;
+        //mesh.elem.style.display = '';
+        gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
+        //let anim =gsap.to(mesh.elem,{transform:{scale:0.5},duration:2})
+        //anim.play();
+        //let _temp = {,mesh.elem}
+                // gpsMain.polygonsTxt.push({center,elem});
+        //console.log (mesh)
+        
     },
     angulo180(x)
     {
@@ -317,9 +326,9 @@ let gpsMain=
                     }
                 }                
             }
-            if (gpsMain.polygonsTxt.length == 0)
+            if (gpsMain.polygonsTxt.length == 0)// verificar validacion camviar el if por otra variable
             {
-                document.getElementById("Test").innerHTML = "no hay poligonos cerca"
+                //document.getElementById("Test").innerHTML = "no hay poligonos cerca"
             }
         //console.log(polygons)
         }else
@@ -334,34 +343,7 @@ let gpsMain=
         const cube = new THREE.Mesh( geometryc, materialc );
         return cube;
    },
-   createText(txt,color,parent,position)
-   {
-    
-    	const matLite = new THREE.MeshBasicMaterial( {
-		    color: color,
-            side: THREE.DoubleSide
-        } );
-        const message = txt;
 
-        const shapes = gpsMain.font.generateShapes( message, .6 );
-
-        const geometry = new THREE.ShapeGeometry( shapes );
-
-        geometry.computeBoundingBox();
-
-        const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
-
-        geometry.translate( xMid, 0, 0 );
-
-        // make shape ( N.B. edge view not visible )
-
-        const text = new THREE.Mesh( geometry, matLite );
-
-        text.position.copy(position)
-        text.position.z -=1;
-        parent.add(text);
-        gpsMain.polygonsTxt.push(text);           
-   },
    /**
      * 
      * @param {Array[json]} dstcoordinates 
@@ -381,44 +363,38 @@ let gpsMain=
  
     addShape:function(shape,color,parent,_center,_html,_url,name)
     {
+        // extruded shape
+        //const extrudeSettings = { depth: 1, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+        //let geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
         
         // flat shape
         let geometry = new THREE.ShapeGeometry( shape );
+
         let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
         let center = new THREE.Object3D();
-        mesh.add(center)
-        center.position.copy (_center);
+        mesh.add(center) // children [0]
+        //var raycast
         let elem = gpsMain.createLabel(_html,_url, name);
-        gpsMain.polygonsTxt.push({center,elem});  
+        elem.style.display = 'none';
+        mesh.elem = elem;
+        mesh.isPolygon = true;
+        mesh.openInfo = false;
+        //        
+        center.position.copy (_center);
         
-
-        //gpsMain.createText(name,0xf0f0f0, mesh, center);
-        //mesh.add(meshTxt);
-        //meshTxt.position.copy(center);
-        //console.log (meshTxt)
-        // let test;
+  
 
         mesh.position.set( 0, 0, 0 );
         mesh.rotation.set(1.5708,0,0);
-        parent.add(mesh)       
+        parent.add(mesh)     
         
-
         //line
         shape.autoClose = true;
         const points = shape.getPoints();
         const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
 
         let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
-	    mesh.add( line );
-        // let cube =gpsMain.createcubeTest();
-        // gpsMain.pivote.parent.add(cube);
-        // let tempV = new THREE.Vector3;
-        // center.updateWorldMatrix(true, false);
-        // center.getWorldPosition(tempV);
-        // cube.position.copy(tempV)
-        // console.log(tempV)
-        //     console.log("----")      
-        
+	    mesh.add( line );  
     },
     centerPolygon(points)
     {
@@ -440,6 +416,7 @@ let gpsMain=
         
         elem.innerHTML = '<a href="'+_url+'">'+'<p>'+name+"<\/p></a>"+txthtml ;
         //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")
+        elem.style.opacity = 1;
         labelContainerElem.appendChild(elem);
         return elem;
     },
@@ -602,14 +579,6 @@ let gpsMain=
         }
 
         return eventName
-    },
-    loadFont:function()
-    {
-        const loader = new THREE.FontLoader();
-        loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) 
-        {
-            gpsMain.font = font;
-        })
-    }
+    },   
    
 }

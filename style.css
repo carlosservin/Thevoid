@@ -32,7 +32,7 @@ body {
   cursor: pointer;     /* change the cursor to a hand when over us */
   font-size: large;
   user-select: none;   /* don't let the text get selected */
-  text-shadow:         /* create a black outline */
+  /* text-shadow:         /* create a black outline 
   -1px -1px 0 rgb(255, 255, 255),
   0   -1px 0 rgb(255, 255, 255),
   1px -1px 0 rgb(255, 255, 255),
@@ -40,10 +40,10 @@ body {
   1px  1px 0 rgb(255, 255, 255),
   0    1px 0 rgb(255, 255, 255),
   -1px  1px 0 rgb(255, 255, 255),
-  -1px  0   0 rgb(255, 255, 255);
-  background-color:DodgerBlue;
+  -1px  0   0 rgb(255, 255, 255); */
+  background-color:rgba(255, 255, 255, 0.448);
   border-radius: 10px;
-  border: 10px solid DodgerBlue;
+  border: 10px solid rgba(255, 255, 255, 0);
 }
 #labels>div:hover {
   color: red;
