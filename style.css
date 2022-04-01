@@ -48,3 +48,25 @@ body {
 #labels>div:hover {
   color: red;
 }
+.button {
+  background-color: #ffffffa3; 
+  border: none;
+  color: rgb(0, 0, 0);  
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;  
+  cursor: pointer;
+}
+.buttonCloseLabel
+{
+  top: 0px;
+  right: 0px;
+  position:absolute;
+  margin-top: -20px;
+  margin-right: -20px;
+  font-size: 24px;
+  width: 26px;
+  height: 26px;
+
+}
+

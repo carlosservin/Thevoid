@@ -267,8 +267,8 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        // gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+       //gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -363,9 +363,9 @@ let gpsMain=
  
     addShape:function(shape,color,parent,_center,_html,_url,name)
     {
-        // extruded shape
-        //const extrudeSettings = { depth: 1, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
-        //let geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+        // // extruded shape
+        // const extrudeSettings = { depth: .1, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 1, bevelThickness: 1 };
+        // let geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
         
         // flat shape
         let geometry = new THREE.ShapeGeometry( shape );
@@ -374,8 +374,8 @@ let gpsMain=
         let center = new THREE.Object3D();
         mesh.add(center) // children [0]
         //var raycast
-        let elem = gpsMain.createLabel(_html,_url, name);
-        elem.style.display = 'none';
+        let elem = gpsMain.createLabel(_html,_url, name, mesh);
+        elem.style.display = "none"
         mesh.elem = elem;
         mesh.isPolygon = true;
         mesh.openInfo = false;
@@ -408,16 +408,29 @@ let gpsMain=
         y = y/points.length;
         return new THREE.Vector3(x,y,0);
     },
-    createLabel:function(txthtml,_url,name)
+    createLabel:function(txthtml,_url,name,mesh)
     {
         const labelContainerElem = document.querySelector('#labels');
         const elem = document.createElement('div');
+        const closeElem = document.createElement('button');
+        closeElem.setAttribute("class", "button buttonCloseLabel")
+        closeElem.innerHTML = "X"
+
+        
+        closeElem.onclick = function()
+        {
+            //gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
+            console.log ("cerrar")
+            gpsMain.polygonsTxt = gpsMain.polygonsTxt.filter(_mesh=> _mesh.center.uuid !=mesh.children[0].uuid)
+            elem.style.display = "none"
+            mesh.openInfo = false;
+        }
         //elem.setAttribute('href',_url)
         
         elem.innerHTML = '<a href="'+_url+'">'+'<p>'+name+"<\/p></a>"+txthtml ;
-        //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")
-        elem.style.opacity = 1;
+        //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")        
         labelContainerElem.appendChild(elem);
+        elem.appendChild(closeElem);
         return elem;
     },
 

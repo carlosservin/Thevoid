@@ -15,17 +15,23 @@
 let pointer = new THREE.Vector2();
 let tocando = false
 
-function onPointerdown( event ) {
-
-  // calculate pointer position in normalized device coordinates
-  // (-1 to +1) for both components
-
-  pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-tocando = true;
+function onTouchstart( event ) {  
+  tocando = true;
+  console.log ("touch")
 }
-function onPointerup( event ) {
+function onTouchend( event ) {
   tocando = false;
+  console.log ("up")
+  console.log (window.innerWidth)
+}
+function ontouchmove( event ) {
+
+	// calculate pointer position in normalized device coordinates
+	// (-1 to +1) for both components
+
+	pointer.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+	pointer.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
+//console.log(pointer)
 }
 
 /**
@@ -112,6 +118,12 @@ class App {
     this.xrSession.requestAnimationFrame(this.onXRFrame);
                                                                                 
     //this.xrSession.addEventListener("select", this.onSelect);
+    // this.xrSession.addEventListener( 'touchstart', onTouchstart );
+    // this.xrSession.addEventListener( 'touchend', onTouchend );
+    // this.xrSession.addEventListener( 'touchmove', ontouchmove);
+    window.addEventListener( 'touchstart', onTouchstart );
+    window.addEventListener( 'touchend', onTouchend );
+    window.addEventListener( 'touchmove', ontouchmove);
   }
 
   /**
@@ -195,6 +207,7 @@ class App {
         this.raycaster.setFromCamera( pointer, this.camera );
         const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
         //const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
+        console.log (pointer)
         if (intersects.length>0)
         {
           if (intersects[0].object.isPolygon)
@@ -253,8 +266,6 @@ class App {
     this.floor =0;
     this.raycaster = new THREE.Raycaster();
 
-    window.addEventListener( 'pointerdown', onPointerdown );
-    window.addEventListener( 'pointerup', onPointerup );
     
   }
 
