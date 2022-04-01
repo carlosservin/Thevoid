@@ -69,4 +69,17 @@ body {
   height: 26px;
 
 }
+.restart
+{
+  top: 0px;
+  right: 0px;
+  position:absolute;
+  font-size: 26px;
+  width: 32px;
+  height: 32px;
+  display: none;
+  margin-top: 15px;
+  margin-right: 15px;
+  z-index: 11;
+}
 

@@ -17,12 +17,12 @@ let tocando = false
 
 function onTouchstart( event ) {  
   tocando = true;
-  console.log ("touch")
+  // console.log ("touch")
 }
 function onTouchend( event ) {
   tocando = false;
-  console.log ("up")
-  console.log (window.innerWidth)
+  // console.log ("up")
+  // console.log (window.innerWidth)
 }
 function ontouchmove( event ) {
 
@@ -207,7 +207,7 @@ class App {
         this.raycaster.setFromCamera( pointer, this.camera );
         const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
         //const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
-        console.log (pointer)
+        // console.log (pointer)
         if (intersects.length>0)
         {
           if (intersects[0].object.isPolygon)
@@ -265,7 +265,10 @@ class App {
     this.time=0;
     this.floor =0;
     this.raycaster = new THREE.Raycaster();
-
+    // btn restart
+    let btnRestart =document.getElementById('restart');
+    btnRestart.style.display = 'block';
+  
     
   }
 
