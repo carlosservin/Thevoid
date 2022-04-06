@@ -3,6 +3,7 @@ let gpsMain=
     camera :"",
     canvas:"",
     polygonsTxt:[],
+    iconInfoP:[],
     groupIDPoygons:[],
     font:"",
     dataAPI:"",
@@ -88,11 +89,19 @@ let gpsMain=
         window.addEventListener(eventName, gpsMain._onDeviceOrientation, false);
         console.log(gpsMain._onDeviceOrientation)
     },
+    updateIconInfo()
+    {
+        gpsMain.iconInfoP.forEach(element => {
+            element.lookAt(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.y,gpsMain.pose.transform.position.z)
+        });
+        
+
+    },
 
     updatePosition()
     {
         let coord =gpsMain.coordinateToVirtualSpace(gpsMain.originCoords,gpsMain.currentCoords)
-        console.log(coord)
+        // console.log(coord)
         // console.log (gpsMain.pivoteCamera.position.x)
         // console.log (coord.x - gpsMain.pivoteCamera.position.x)
         // console.log ("promedio X: " + (coord.x - gpsMain.pivoteCamera.position.x)/2)
@@ -323,8 +332,8 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+    //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -507,8 +516,7 @@ let gpsMain=
         mesh.groupID = groupID;
         //        
         center.position.copy (_center);
-        
-  
+
 
         mesh.position.set( 0, 0, 0 );
         mesh.rotation.set(1.5708,0,0);
@@ -521,6 +529,16 @@ let gpsMain=
 
         let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
 	    mesh.add( line );  
+        // plane icon info
+        let info = gpsMain.createIconInfo();
+        mesh.add(info)
+        mesh.iconInfoP = info
+        info.position.copy(_center)
+        info.position.z -= 2.5
+        info.rotation.set(-1.5708,0,0);
+        gpsMain.iconInfoP.push( info)
+
+        console.log (info)
     },
     centerPolygon(points)
     {
@@ -542,7 +560,7 @@ let gpsMain=
         closeElem.setAttribute("class", "button buttonCloseLabel")
         closeElem.innerHTML = "X"
 
-        
+        //close label
         closeElem.onclick = function()
         {
             //gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
@@ -550,6 +568,7 @@ let gpsMain=
             gpsMain.polygonsTxt = gpsMain.polygonsTxt.filter(_mesh=> _mesh.center.uuid !=mesh.children[0].uuid)
             elem.style.display = "none"
             mesh.openInfo = false;
+            mesh.iconInfoP.visible = true;
         }
         //elem.setAttribute('href',_url)
         
@@ -559,6 +578,20 @@ let gpsMain=
         elem.appendChild(closeElem);
         return elem;
     },
+    /**
+     * 
+     * @returns  plane
+     */
+    createIconInfo()
+    {
+        const geometry = new THREE.PlaneGeometry( 1.5, 1.5 );
+         const texture =new THREE.TextureLoader().load( 'Texture/information.png' );
+         const material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide, map:texture, transparent:true} );
+         let inf =new THREE.Mesh( geometry, material );
+         inf.name = "icon";
+         return inf
+    },
+
 
 
     /**

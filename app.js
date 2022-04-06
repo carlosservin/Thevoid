@@ -17,7 +17,10 @@ let tocando = false
 
 function onTouchstart( event ) {  
   tocando = true;
-  // console.log ("touch")
+  pointer.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+	pointer.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
+  console.log ("touch")
+  console.log(pointer)
 }
 function onTouchend( event ) {
   tocando = false;
@@ -168,6 +171,7 @@ class App {
         const hitPose = hitTestResults[0].getPose(this.localReferenceSpace);  
 
         gpsMain.updateRotation(hitPose.transform)
+        gpsMain.updateIconInfo();
         if (!gpsMain.checkCalibrado)
         {
               //     /** Update the reticle position. */
@@ -204,16 +208,19 @@ class App {
       if (tocando)
       {
         this.raycaster.setFromCamera( pointer, this.camera );
-        const intersects = this.raycaster.intersectObjects( gpsMain.pivotePoligono.children );
-        //const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
+        // const intersects = this.raycaster.intersectObjects( gpsMain.pivotePoligono.children );
+        const intersects = this.raycaster.intersectObjects( gpsMain.iconInfoP );
         // console.log (pointer)
         if (intersects.length>0)
         {
-          if (intersects[0].object.isPolygon)
+          console.log("___ ray")
+          console.log (intersects[0].object)
+          if (intersects[0].object.parent.isPolygon)
           {
-            if (!intersects[0].object.openInfo)
+            if (!intersects[0].object.parent.openInfo)
             {
-              gpsMain.openElemen(intersects[0].object);
+              gpsMain.openElemen(intersects[0].object.parent);
+              intersects[0].object.visible = false;
             }          
           }                                                            
 
