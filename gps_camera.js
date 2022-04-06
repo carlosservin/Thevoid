@@ -101,7 +101,7 @@ let gpsMain=
         gpsMain.pivotePoligono.z +=  ((coord.y - gpsMain.pivoteCamera.position.z)/2);
 
         let dist = gpsMain.computeDistanceMeters(gpsMain.originCoords, gpsMain.currentCoords)
-        document.getElementById("Test").innerHTML = dist
+        // document.getElementById("Test").innerHTML = dist
         if (dist>= 200) //200meters
         {
             gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng},()=>{gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)})
@@ -111,7 +111,7 @@ let gpsMain=
         }
         console.log (dist)
         /** update rotation desdpues de calibrar */
-        gpsMain.pivote.rotation.set(0,(gpsMain.difCamara_difHeading)* Math.PI/180,0)
+        // gpsMain.pivote.rotation.set(0,(gpsMain.difCamara_difHeading)* Math.PI/180,0)
     },
     updateRotation(transform)
     {
@@ -290,9 +290,9 @@ let gpsMain=
         gpsMain.pivoteCamera.add(p);
         gpsMain.pivote.add(gpsMain.pivoteCamera)
 
-        let c = gpsMain.createcubeTest();
-        gpsMain.pivote.add(c);
-        c.position.set(2,0,0)
+        // let c = gpsMain.createcubeTest();
+        // gpsMain.pivote.add(c);
+        // c.position.set(2,0,0)
 
     },
 
@@ -322,8 +322,8 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-    //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
