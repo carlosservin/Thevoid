@@ -185,7 +185,6 @@ class App {
           }
           else
           {
-            gpsMain.checkCalibrado = true;
             console.log(this.reticle.position.y)
             console.log("termino de calibrar")
             gpsMain.checkCalibrado = true; 
@@ -205,7 +204,7 @@ class App {
       if (tocando)
       {
         this.raycaster.setFromCamera( pointer, this.camera );
-        const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
+        const intersects = this.raycaster.intersectObjects( gpsMain.pivotePoligono.children );
         //const intersects = this.raycaster.intersectObjects( gpsMain.pivote.children );
         // console.log (pointer)
         if (intersects.length>0)
