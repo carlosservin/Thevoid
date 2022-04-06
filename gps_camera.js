@@ -287,6 +287,7 @@ let gpsMain=
         gpsMain.pivoteCamera = new THREE.Object3D();
         let p = plane.clone();
         p.position.y = -1.1;
+        p.visible = false
         gpsMain.pivoteCamera.add(p);
         gpsMain.pivote.add(gpsMain.pivoteCamera)
 
