@@ -13,29 +13,29 @@
  * limitations under the License.
  */
 let pointer = new THREE.Vector2();
-let tocando = false
+// let tocando = false
 
-function onTouchstart( event ) {  
-  tocando = true;
-  pointer.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
-	pointer.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-  console.log ("touch")
-  console.log(pointer)
-}
-function onTouchend( event ) {
-  tocando = false;
-  // console.log ("up")
-  // console.log (window.innerWidth)
-}
-function ontouchmove( event ) {
+// function onTouchstart( event ) {  
+//   tocando = true;
+//   pointer.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+// 	pointer.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
+//   console.log ("touch")
+//   console.log(pointer)
+// }
+// function onTouchend( event ) {
+//   tocando = false;
+//   // console.log ("up")
+//   // console.log (window.innerWidth)
+// }
+// function ontouchmove( event ) {
 
-	// calculate pointer position in normalized device coordinates
-	// (-1 to +1) for both components
+// 	// calculate pointer position in normalized device coordinates
+// 	// (-1 to +1) for both components
 
-	pointer.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
-	pointer.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-//console.log(pointer)
-}
+// 	pointer.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+// 	pointer.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
+// //console.log(pointer)
+// }
 
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
@@ -120,13 +120,13 @@ class App {
     /** Start a rendering loop using this.onXRFrame. */
     this.xrSession.requestAnimationFrame(this.onXRFrame);
                                                                                 
-    //this.xrSession.addEventListener("select", this.onSelect);
+    this.xrSession.addEventListener("select", this.onSelect);
     // this.xrSession.addEventListener( 'touchstart', onTouchstart );
     // this.xrSession.addEventListener( 'touchend', onTouchend );
     // this.xrSession.addEventListener( 'touchmove', ontouchmove);
-    window.addEventListener( 'touchstart', onTouchstart );
-    window.addEventListener( 'touchend', onTouchend );
-    window.addEventListener( 'touchmove', ontouchmove);
+    // window.addEventListener( 'touchstart', onTouchstart );
+    // window.addEventListener( 'touchend', onTouchend );
+    // window.addEventListener( 'touchmove', ontouchmove);
   }
 
   /**
@@ -205,27 +205,52 @@ class App {
       gpsMain.pose = pose;
       /*
       ray cast*/
-      if (tocando)
-      {
+
         this.raycaster.setFromCamera( pointer, this.camera );
         // const intersects = this.raycaster.intersectObjects( gpsMain.pivotePoligono.children );
         const intersects = this.raycaster.intersectObjects( gpsMain.iconInfoP );
         // console.log (pointer)
         if (intersects.length>0)
         {
-          console.log("___ ray")
-          console.log (intersects[0].object)
-          if (intersects[0].object.parent.isPolygon)
-          {
-            if (!intersects[0].object.parent.openInfo)
+          if (this.INTERSECTED != intersects[0].object)
+          {         
+            if (this.INTERSECTED)
             {
-              gpsMain.openElemen(intersects[0].object.parent);
-              intersects[0].object.visible = false;
-            }          
-          }                                                            
-
+              this.INTERSECTED.scale.x *= 2
+              this.INTERSECTED.scale.y *= 2
+              this.INTERSECTED.scale.z *= 2   
+            }   
+            this.INTERSECTED = intersects[ 0 ].object;            
+            this.INTERSECTED.scale.x *= 2
+            this.INTERSECTED.scale.y *= 2
+            this.INTERSECTED.scale.z *= 2  
+          }
         }
-      }
+        else
+        {
+            if (this.INTERSECTED)
+            {
+              this.INTERSECTED.scale.x /= 2
+              this.INTERSECTED.scale.y /= 2
+              this.INTERSECTED.scale.z /= 2 
+            }
+            this.INTERSECTED = null;
+        }
+          // if (tocando)
+          // {
+          //   console.log("___ ray")
+          //   console.log (intersects[0].object)
+          //   if (intersects[0].object.parent.isPolygon)
+          //   {
+          //     if (!intersects[0].object.parent.openInfo)
+          //     {
+          //       gpsMain.openElemen(intersects[0].object.parent);
+          //       intersects[0].object.visible = false;
+          //     }          
+          //   }                                                           
+
+          // }
+      
 
      
       /** Render the scene with THREE.WebGLRenderer. */
@@ -271,6 +296,7 @@ class App {
     this.time=0;
     this.floor =0;
     this.raycaster = new THREE.Raycaster();
+    this.INTERSECTED;
     // btn restart
     let btnRestart =document.getElementById('restart');
     btnRestart.style.display = 'block';
@@ -279,15 +305,18 @@ class App {
   }
 
   /** Place a sunflower when the screen is tapped. */
-  // onSelect = () => {
-  //   if (!gpsMain.checkCalibrado&& this.createPoligon)
-  //   {
-  //     gpsMain.checkCalibrado = true; 
-  //     gpsMain.setPivote(this.reticle)
-  //     gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
-       
-  //    }
-  // }
+  onSelect = () => {
+    if (this.INTERSECTED != null)
+    {
+      if (!this.INTERSECTED.parent.openInfo)
+      {
+        console.log(this.INTERSECTED)
+        gpsMain.openElemen(this.INTERSECTED.parent);
+        this.INTERSECTED.visible = false;
+        this.INTERSECTED.position.set(50,50,50)//mandarlo a otro lugar
+      }
+    }
+  }
 
 
 }

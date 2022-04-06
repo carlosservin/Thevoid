@@ -534,7 +534,10 @@ let gpsMain=
         mesh.add(info)
         mesh.iconInfoP = info
         info.position.copy(_center)
+        
         info.position.z -= 2.5
+        info.originPos =  _center;
+        info.originPos.z -=2.5
         info.rotation.set(-1.5708,0,0);
         gpsMain.iconInfoP.push( info)
 
@@ -569,6 +572,9 @@ let gpsMain=
             elem.style.display = "none"
             mesh.openInfo = false;
             mesh.iconInfoP.visible = true;
+            mesh.iconInfoP.position.copy ( mesh.iconInfoP.originPos)
+            mesh.iconInfoP.visible = true 
+            console.log(mesh.iconInfoP)
         }
         //elem.setAttribute('href',_url)
         

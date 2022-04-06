@@ -82,4 +82,13 @@ body {
   margin-right: 15px;
   z-index: 11;
 }
+#mira
+{
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  width: 5px;
+  height: 5px;
+  background-color: #ffffffa3; 
+}
 
