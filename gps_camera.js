@@ -65,7 +65,6 @@ let gpsMain=
     SetCameraGps: function ()
     {
             if (navigator.geolocation) {
-                //navigator.geolocation.watchPosition(showPosition);
                 navigator.geolocation.getCurrentPosition(function (position)
                 {
                     gpsMain.originCoords.lat = position.coords.latitude;
@@ -75,7 +74,6 @@ let gpsMain=
                 {
                     gpsMain.currentCoords.lat = position.coords.latitude;
                     gpsMain.currentCoords.lng = position.coords.longitude;
-                    //document.getElementById("Test").innerHTML =("your lat: "+position.coords.latitude + "lng: "+  position.coords.longitude)
                     if (gpsMain.checkCalibrado)
                     {
                         gpsMain.updatePosition();
@@ -93,36 +91,24 @@ let gpsMain=
 
     updatePosition()
     {
-
-        let dstCoords= 
-        {
-            lat:gpsMain.originCoords.lat,
-            lng:gpsMain.currentCoords.lng
-        }
-        let coord = gpsMain.coordinateToVirtualSpace(gpsMain.originCoords,dstCoords)
+        let coord =gpsMain.coordinateToVirtualSpace(gpsMain.originCoords,gpsMain.currentCoords)
         console.log(coord)
-
-        dstCoords = 
-        {
-            lat: gpsMain.currentCoords.lat,
-            lng: gpsMain.originCoords.lng
-        }
-        coord = gpsMain.coordinateToVirtualSpace(gpsMain.originCoords,dstCoords)
-
-        //let distance = new THREE.Vector2().distanceTo(coord);
-        // document.getElementById("Test").innerHTML =(coord)
-        console.log(coord)
-        coord =gpsMain.coordinateToVirtualSpace(gpsMain.originCoords,gpsMain.currentCoords)
-        console.log(coord)
-        console.log (gpsMain.pivoteCamera.position.x)
-        console.log (coord.x - gpsMain.pivoteCamera.position.x)
-        console.log ("promedio X: " + (coord.x - gpsMain.pivoteCamera.position.x)/2)
-        console.log ("promedio Z: " + (coord.y - gpsMain.pivoteCamera.position.z)/2)
+        // console.log (gpsMain.pivoteCamera.position.x)
+        // console.log (coord.x - gpsMain.pivoteCamera.position.x)
+        // console.log ("promedio X: " + (coord.x - gpsMain.pivoteCamera.position.x)/2)
+        // console.log ("promedio Z: " + (coord.y - gpsMain.pivoteCamera.position.z)/2)
         gpsMain.pivotePoligono.x +=  ((coord.x - gpsMain.pivoteCamera.position.x)/2);
         gpsMain.pivotePoligono.z +=  ((coord.y - gpsMain.pivoteCamera.position.z)/2);
 
         let dist = gpsMain.computeDistanceMeters(gpsMain.originCoords, gpsMain.currentCoords)
         document.getElementById("Test").innerHTML = dist
+        if (dist>= 200) //200meters
+        {
+            gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng},()=>{gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)})
+            //resert origin coords
+            gpsMain.originCoords.lat = position.coords.latitude;
+            gpsMain.originCoords.lng = position.coords.longitude;
+        }
         console.log (dist)
         /** update rotation desdpues de calibrar */
         gpsMain.pivote.rotation.set(0,(gpsMain.difCamara_difHeading)* Math.PI/180,0)
@@ -343,7 +329,7 @@ let gpsMain=
     /*
        get
     */
-   _getVertexPolygon:function(_position)
+   _getVertexPolygon:function(_position,callBack)
    {
     //    gpsMain.originCoords.lat =_position.lat;
     //    gpsMain.originCoords.lng = _position.lng;
@@ -353,12 +339,13 @@ let gpsMain=
             for : 'sumeru',
             lat : _position.lat,
             lng: _position.lng,
-            dist_miles: '.126',
+            dist_miles: '.25',//400 metros
             url:'https://community.saltstrong.com/api/get_polygons.php?'
         };
 
 
-        const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}`;
+        // const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}`;
+        const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
         console.log(url)
         fetch(url)
         .then(res=>{
@@ -367,6 +354,7 @@ let gpsMain=
             .then(data=>
                 {
                     gpsMain.dataAPI = {data,_position};
+                    if (typeof callBack=== 'function') callBack();
                     //gpsMain.createPolygonsAPI(_position,data)
                 })
         })
@@ -384,78 +372,91 @@ let gpsMain=
             for(let i = 0; i<polygon.length;i++)
             // for(let i = 0; i<1;i++)
             {
-                if (polygon[i].distance<= 1.242) // 0.621371 millas = 1000 meters
+                if (polygon[i].distance<= 0.25) // 400 meters
                 {
-                    let grupo = JSON.parse(polygon[i].PolygonCoords);
-                    //gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
-                    for (let j = 0; j<grupo.length; j++)
-                    // for (let j = 0; j<1; j++)
-                    {
-                        gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].html,polygon[i].url,polygon[i].Name,polygon[i].id)
-                        //console.log (grupo[j]);
+                    // let grupo = JSON.parse(polygon[i].PolygonCoords);
+                    // //gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
+                    // for (let j = 0; j<grupo.length; j++)
+                    // // for (let j = 0; j<1; j++)
+                    // {
+                    //     gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].html,polygon[i].url,polygon[i].Name,polygon[i].id)
+                    //     //console.log (grupo[j]);
 
-                    }
-                    idPolygons_tem.push(polygon[i].id)   
+                    // }
+                    idPolygons_tem.push(polygon[i])   
                 }                             
             }
-            console.log ("__")
-            gpsMain.checkPolygons(idPolygons_tem)
+            gpsMain.checkPolygons(idPolygons_tem, _position)
             if (gpsMain.polygonsTxt.length == 0)// verificar validacion camviar el if por otra variable
             {
                 //document.getElementById("Test").innerHTML = "no hay poligonos cerca"
             }
-        console.log(gpsMain.pivotePoligono.children)
+        // console.log(gpsMain.pivotePoligono.children)
         }else
         {
             document.getElementById("Test").innerHTML = "no polygon";
         }
    },
 
-   checkPolygons(newIDPolygons)
+   checkPolygons(newIDPolygons,_position)
    {
+    //    console.log("----")
+    //    console.log (newIDPolygons)
        let _newPoygonsTemp = newIDPolygons;
        let _deletePolygonsTemp= [];
        if(gpsMain.groupIDPoygons.length!= 0)
        {
             gpsMain.groupIDPoygons.filter(id=>
                 {
-                    let _temp=newIDPolygons.filter(_newID=> _newID == id)
+                    let _temp=newIDPolygons.filter(_newID=> _newID.id == id)
                     if (_temp.length== 0)
                     {
-                        console.log ("eliminar del grupo al: " + id)
+                        // console.log ("eliminar del grupo al: " + id)
                         _deletePolygonsTemp.push(id)                        
                     }else
                     {
-                        console.log ("ya existe"+ id)
-                        //_newPoygonsTemp = newIDPolygons.filter(_id=>_id !=id); // delete polygon, array
-                        _newPoygonsTemp = _newPoygonsTemp.filter(_id => _id != id);
+                        // console.log ("ya existe"+ id)
+                        _newPoygonsTemp = _newPoygonsTemp.filter(_id => _id.id != id);
                     }
                 })
             gpsMain.deleteGroups(_deletePolygonsTemp)
-            gpsMain.addGroups(_newPoygonsTemp);
-            console.log (gpsMain.groupIDPoygons)
+            gpsMain.addGroups(_newPoygonsTemp,_position);
+            // console.log (gpsMain.groupIDPoygons)
        }
        else
        {
            // todos los poligonos a crear
-           gpsMain.groupIDPoygons = newIDPolygons;
-           console.log (gpsMain.groupIDPoygons)
-
+           gpsMain.addGroups(newIDPolygons,_position)
+        //    console.log (gpsMain.groupIDPoygons)
        }
 
    },
    deleteGroups(ids)
    {
+       let mesh
         for (let i = 0 ; i<ids.length;i++)
         {
-            gpsMain.groupIDPoygons = gpsMain.groupIDPoygons.filter(g =>g!= ids[i])
+            gpsMain.groupIDPoygons = gpsMain.groupIDPoygons.filter(g => g.id!= ids[i].id)
+            mesh = this.pivotePoligono.children.filter(m=>ids[i].id==m.groupID)
         }
+        mesh.forEach(element => {
+            gpsMain.pivotePoligono.remove(element)
+        });
    },
-   addGroups(ids)
+   addGroups(ids,_position)
    {
         for (let i = 0 ; i<ids.length;i++)
         {
             gpsMain.groupIDPoygons.push(ids[i])
+            console.log (ids[i])
+            let grupo = JSON.parse(ids[i].PolygonCoords);
+            for (let j = 0; j<grupo.length; j++)
+            // for (let j = 0; j<1; j++)
+            {
+                gpsMain.createPolygon(_position,grupo[j],ids[i].color,ids[i].html,ids[i].url,ids[i].Name,ids[i].id)
+                //console.log (grupo[j]);
+
+            }
         }
    },
    createcubeTest()
