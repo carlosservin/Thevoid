@@ -163,7 +163,7 @@ let gpsMain=
             // get the position of the center of the cube
             let tempV = new THREE.Vector3;
             // let distance = tempV.distanceTo(new THREE.Vector3(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.z,gpsMain.pose.transform.position.y));
-            gpsMain.polygonsTxt[i].center.position.z =-1//( -20 * Math.floor(distance))-2;
+            gpsMain.polygonsTxt[i].center.position.z =-3//( -20 * Math.floor(distance))-2;
 
             gpsMain.polygonsTxt[i].center.updateWorldMatrix(true, false);
             gpsMain.polygonsTxt[i].center.getWorldPosition(tempV);
@@ -198,14 +198,7 @@ let gpsMain=
     openElemen(mesh)
     {
         mesh.openInfo = true;
-        //mesh.elem.style.display = '';
-        gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
-        //let anim =gsap.to(mesh.elem,{transform:{scale:0.5},duration:2})
-        //anim.play();
-        //let _temp = {,mesh.elem}
-                // gpsMain.polygonsTxt.push({center,elem});
-        //console.log (mesh)
-        
+        gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})       
     },
     angulo180(x)
     {
@@ -574,7 +567,6 @@ let gpsMain=
             mesh.iconInfoP.visible = true;
             mesh.iconInfoP.position.copy ( mesh.iconInfoP.originPos)
             mesh.iconInfoP.visible = true 
-            console.log(mesh.iconInfoP)
         }
         //elem.setAttribute('href',_url)
         

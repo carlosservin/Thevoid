@@ -62,11 +62,11 @@ body {
   top: 0px;
   right: 0px;
   position:absolute;
-  margin-top: -20px;
-  margin-right: -20px;
+  margin-top: -27px;
+  margin-right: -27px;
   font-size: 24px;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
 
 }
 .restart
@@ -87,8 +87,10 @@ body {
   position: absolute;
   top: 50%;
   right: 50%;
-  width: 5px;
-  height: 5px;
-  background-color: #ffffffa3; 
+  width: 10px;
+  height: 10px;
+  background-color: #000000e6; 
+  border-radius: 50%;
+  display: inline-block;
 }
 
