@@ -2,6 +2,8 @@ let gpsMain=
 {   
     camera :"",
     canvas:"",
+    halfCanvas:"",
+    touch:false,
     polygonsTxt:[],
     iconInfoP:[],
     groupIDPoygons:[],
@@ -180,7 +182,7 @@ let gpsMain=
             //console.log(distance/200)
             // console.log (new THREE.Matrix4().fromArray(projectionMatrix))
             // console.log (projectionMatrix )
-            let elem = gpsMain.polygonsTxt[i].elem;
+        let elem = gpsMain.polygonsTxt[i].elem;
             if ( Math.abs(tempV.z) > 1)
             {
                 elem.style.display = 'none';
@@ -191,7 +193,25 @@ let gpsMain=
                 const y = (tempV.y * -.5 + .5) * gpsMain.canvas.clientHeight;
                
                 elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
-                elem.style.display = '';                
+                // elem.style.transform = ` translate(${x}px,${y}px)`;
+                elem.style.display = '';
+                let closeBtn= elem.querySelector('#closeButton');
+                
+                  
+                let top = (y +closeBtn.offsetTop-(15))// 30/2= 15 marginTop
+                let left = (x + (closeBtn.offsetLeft/2)+15)
+
+                // console.log(y-gpsMain.halfCanvas.height)  
+                if (top< gpsMain.halfCanvas.height+20 && top >gpsMain.halfCanvas.height-8 )
+                {
+                    if (left< gpsMain.halfCanvas.width&& left> gpsMain.halfCanvas.width-20 )
+                    {
+                        if(gpsMain.touch)
+                        {
+                            closeBtn.onclick()
+                        }
+                    }
+                }             
             }
         }
     },
@@ -325,8 +345,8 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+    //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -554,6 +574,7 @@ let gpsMain=
         const elem = document.createElement('div');
         const closeElem = document.createElement('button');
         closeElem.setAttribute("class", "button buttonCloseLabel")
+        closeElem.setAttribute("id", "closeButton")
         closeElem.innerHTML = "X"
 
         //close label
@@ -570,7 +591,7 @@ let gpsMain=
         }
         //elem.setAttribute('href',_url)
         
-        elem.innerHTML = '<a href="'+_url+'">'+'<p>'+name+"<\/p></a>"+txthtml ;
+        elem.innerHTML = '<a href="'+_url+'">'+'<br><p>'+name+"<\/p></a>"+txthtml ;
         //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")        
         labelContainerElem.appendChild(elem);
         elem.appendChild(closeElem);

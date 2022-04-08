@@ -12,30 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-let pointer = new THREE.Vector2();
-// let tocando = false
-
-// function onTouchstart( event ) {  
-//   tocando = true;
-//   pointer.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
-// 	pointer.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-//   console.log ("touch")
-//   console.log(pointer)
-// }
-// function onTouchend( event ) {
-//   tocando = false;
-//   // console.log ("up")
-//   // console.log (window.innerWidth)
-// }
-// function ontouchmove( event ) {
-
-// 	// calculate pointer position in normalized device coordinates
-// 	// (-1 to +1) for both components
-
-// 	pointer.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
-// 	pointer.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-// //console.log(pointer)
-// }
+  let pointer = new THREE.Vector2();
+  function onTouchstart( event ) {  
+    gpsMain.touch = true;
+    
+  }
+  function onTouchend( event ) {
+    gpsMain.touch = false;
+  }
 
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
@@ -124,9 +108,9 @@ class App {
     // this.xrSession.addEventListener( 'touchstart', onTouchstart );
     // this.xrSession.addEventListener( 'touchend', onTouchend );
     // this.xrSession.addEventListener( 'touchmove', ontouchmove);
-    // window.addEventListener( 'touchstart', onTouchstart );
-    // window.addEventListener( 'touchend', onTouchend );
-    // window.addEventListener( 'touchmove', ontouchmove);
+    window.addEventListener( 'touchstart', onTouchstart );
+    window.addEventListener( 'touchend', onTouchend );
+    window.addEventListener( 'touchmove', ontouchmove);
   }
 
   /**
@@ -197,6 +181,11 @@ class App {
             document.body.classList.add('stabilized');
             this.reticle.visible = false;
             document.querySelector('#calibrating').style.display = 'none';
+
+            //canvas
+            gpsMain.canvas =document.getElementById("container");  //this.canvas;
+            gpsMain.halfCanvas ={width: gpsMain.canvas.clientWidth/2, height:gpsMain.canvas.clientHeight/2}
+            console.log (gpsMain.canvas.clientHeight)
       
           }  
         }
@@ -289,8 +278,7 @@ class App {
     this.camera.matrixAutoUpdate = false;
 
     gpsMain._loadVertexPolygon();
-    gpsMain.camera = this.camera;
-    gpsMain.canvas =document.getElementById("container");  //this.canvas;
+    gpsMain.camera = this.camera;    
     gpsMain.crearcuboReferencia(this.scene)
     this.reloj = new THREE.Clock()
     this.time=0;
