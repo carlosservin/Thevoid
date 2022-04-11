@@ -96,6 +96,7 @@ body {
   display: inline-block;
   border: 2px solid rgb(0, 0, 0);
   z-index: 1;
+  display: none;
 }
 
 

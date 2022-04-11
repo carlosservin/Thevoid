@@ -181,6 +181,7 @@ class App {
             document.body.classList.add('stabilized');
             this.reticle.visible = false;
             document.querySelector('#calibrating').style.display = 'none';
+            document.querySelector('#mira').style.display= 'block'
 
             //canvas
             gpsMain.canvas =document.getElementById("container");  //this.canvas;
