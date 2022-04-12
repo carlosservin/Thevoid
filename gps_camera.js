@@ -156,7 +156,7 @@ let gpsMain=
         }
     },
 
-    updatePolygonsTxt(matrixWorldInverse,projectionMatrix)// eliminar
+    updatePolygonsTxt(matrixWorldInverse,projectionMatrix)
     {
         for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
         {
@@ -169,20 +169,13 @@ let gpsMain=
 
             gpsMain.polygonsTxt[i].center.updateWorldMatrix(true, false);
             gpsMain.polygonsTxt[i].center.getWorldPosition(tempV);
-            //console.log(distance.toFixed(2))
             // get the normalized screen coordinate of that position
             // x and y will be in the -1 to +1 range with x = -1 being
             // on the left and y = -1 being on the bottom            
             tempV =  tempV.applyMatrix4(new THREE.Matrix4().fromArray(matrixWorldInverse) ).applyMatrix4( new THREE.Matrix4().fromArray(projectionMatrix) );
-            //tempV.project(camera);
-            //console.log(tempV)
-            
-            //console.log(distance)
-            // console.log((THREE.Math.lerp(0,200,distance)))
-            //console.log(distance/200)
-            // console.log (new THREE.Matrix4().fromArray(projectionMatrix))
-            // console.log (projectionMatrix )
-        let elem = gpsMain.polygonsTxt[i].elem;
+
+
+            let elem = gpsMain.polygonsTxt[i].elem;
             if ( Math.abs(tempV.z) > 1)
             {
                 elem.style.display = 'none';
@@ -222,7 +215,10 @@ let gpsMain=
     openElemen(mesh)
     {
         mesh.openInfo = true;
-        gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})       
+        gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
+        let anim = gsap.fromTo(mesh.elem,{css:{transform: "scale(0)"}}, {css:{transform: "scale(1)"},  duration: 2});     
+        anim.play()
+        console.log (mesh.elem)
     },
     angulo180(x)
     {
@@ -292,15 +288,6 @@ let gpsMain=
         //referencia.add(plane)
         gpsMain.cubeRF = referencia;
         scene.add(referencia)
-
-
-        // //2
-        // const geometry2 = new THREE.BoxGeometry( .15, .15, .15 );
-        // const material2 = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-        // const cube2 = new THREE.Mesh( geometry2, material2 );
-        // cube2.position.set(0,0,.4)
-        // cube.add(cube2);
-        // //gpsMain.pivote =  cube.clone();
         gpsMain.pivote = new THREE.Object3D();
         gpsMain.pivote.add(plane)
         scene.add(gpsMain.pivote);
