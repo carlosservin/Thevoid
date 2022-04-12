@@ -37,6 +37,9 @@
 
     <link rel="stylesheet" type="text/css" href="../shared/app.css" />
     <link rel="stylesheet" href="style.css"/>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
+      </style>
     <script src="../shared/utils.js"></script>
   </head>
   <body>
@@ -56,12 +59,8 @@
       <p>Make sure you're hosting the entire project root, and not just this folder. The url you're using to access this file should look something like <code>http://localhost:8080/workshop/index.html</code>.</p>
     </div>
     <div id="enter-ar-info" class="mdc-card demo-card">
-      <h2>Augmented Reality with the WebXR Device API</h2>
-      <p>
-        This is an experiment using augmented reality features with the WebXR Device API.
-        Upon entering AR, you will be surrounded by a world of cubes.
-        Learn more about these features from the <a href="https://codelabs.developers.google.com/codelabs/ar-with-webxr">Building an augmented reality application with the WebXR Device API</a> Code Lab.
-      </p>
+      <img src="https://www.saltstrong.com/wp-content/uploads/logo.svg" data-src="https://www.saltstrong.com/wp-content/uploads/logo.svg" class="attachment-full size-full ls-is-cached lazyloaded" alt="">
+      <h2> This is an experiment using augmented reality</h2>     
 
       <!-- Starting an immersive WebXR session requires user interaction. Start the WebXR experience with a simple button. -->
       <a id="enter-ar" class="mdc-button mdc-button--raised mdc-button--accent">
@@ -70,6 +69,7 @@
     </div>
 
     <div id="unsupported-info" class="mdc-card demo-card">
+      
       <h2>Unsupported Browser</h2>
       <p>
         Your browser does not support AR features with WebXR. Learn more about these features from the
@@ -85,7 +85,7 @@
     <div id="stabilization"></div>
         <div id="calibrating"> <p>calibrating...</p></div>
     
-    <button class="button restart" id="restart" onclick="window.location.href='https://testsumeru.xyz/';" >X</button>
+    <button class="button restart" id="restart" onclick="window.location.href='https://testsumeru.xyz/';" ></button>
     <!-- <a class="button restart" id="restart">X</a> -->
   </body>
 </html>

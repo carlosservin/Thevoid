@@ -120,7 +120,7 @@ let gpsMain=
             gpsMain.originCoords.lat = position.coords.latitude;
             gpsMain.originCoords.lng = position.coords.longitude;
         }
-        console.log (dist)
+        // console.log (dist)
         /** update rotation desdpues de calibrar */
         // gpsMain.pivote.rotation.set(0,(gpsMain.difCamara_difHeading)* Math.PI/180,0)
     },
@@ -189,23 +189,27 @@ let gpsMain=
             }else
             {
                 // convert the normalized position to CSS coordinates
-                const x = (tempV.x *  .5 + .5) * gpsMain.canvas.clientWidth;
-                const y = (tempV.y * -.5 + .5) * gpsMain.canvas.clientHeight;
+                const x = ((tempV.x *  .5 + .5) * gpsMain.canvas.clientWidth)- (elem.offsetWidth/2);
+                const y = ((tempV.y * -.5 + .5) * gpsMain.canvas.clientHeight)- (elem.offsetHeight/2);
                
-                elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
+                // elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
                 // elem.style.transform = ` translate(${x}px,${y}px)`;
+                //elem.style.transform = `translate(-50%, -50%)`
+                elem.style.left = x +"px"
+                elem.style.top = y+"px"
                 elem.style.display = '';
                 let closeBtn= elem.querySelector('#closeButton');
                 
                   
-                let top = (y +closeBtn.offsetTop-(15))// 30/2= 15 marginTop
-                let left = (x + (closeBtn.offsetLeft/2)+15)
+                let top = y - closeBtn.offsetTop-45
+                let left = x + closeBtn.offsetLeft;
 
-                // console.log(y-gpsMain.halfCanvas.height)  
-                if (top< gpsMain.halfCanvas.height+20 && top >gpsMain.halfCanvas.height-8 )
+
+                if (top< gpsMain.halfCanvas.height+10 && top >gpsMain.halfCanvas.height-15 )
                 {
-                    if (left< gpsMain.halfCanvas.width&& left> gpsMain.halfCanvas.width-20 )
+                    if (left< gpsMain.halfCanvas.width-5&& left> gpsMain.halfCanvas.width-35 )
                     {
+                        // console.log (left)
                         if(gpsMain.touch)
                         {
                             closeBtn.onclick()
@@ -345,8 +349,8 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+    //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*
@@ -406,7 +410,8 @@ let gpsMain=
                     //     //console.log (grupo[j]);
 
                     // }
-                    idPolygons_tem.push(polygon[i])   
+                    idPolygons_tem.push(polygon[i]) 
+                    console.log (polygon[i])  
                 }                             
             }
             gpsMain.checkPolygons(idPolygons_tem, _position)
@@ -575,7 +580,6 @@ let gpsMain=
         const closeElem = document.createElement('button');
         closeElem.setAttribute("class", "button buttonCloseLabel")
         closeElem.setAttribute("id", "closeButton")
-        closeElem.innerHTML = "X"
 
         //close label
         closeElem.onclick = function()
@@ -591,7 +595,7 @@ let gpsMain=
         }
         //elem.setAttribute('href',_url)
         
-        elem.innerHTML = '<a href="'+_url+'">'+'<br><p>'+name+"<\/p></a>"+txthtml ;
+        elem.innerHTML = '<a href="'+_url+'">'+'<p>'+name+"<\/p></a>"+txthtml ;
         //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")        
         labelContainerElem.appendChild(elem);
         elem.appendChild(closeElem);

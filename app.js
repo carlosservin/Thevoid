@@ -105,9 +105,7 @@ class App {
     this.xrSession.requestAnimationFrame(this.onXRFrame);
                                                                                 
     this.xrSession.addEventListener("select", this.onSelect);
-    // this.xrSession.addEventListener( 'touchstart', onTouchstart );
-    // this.xrSession.addEventListener( 'touchend', onTouchend );
-    // this.xrSession.addEventListener( 'touchmove', ontouchmove);
+
     window.addEventListener( 'touchstart', onTouchstart );
     window.addEventListener( 'touchend', onTouchend );
     window.addEventListener( 'touchmove', ontouchmove);
@@ -158,7 +156,8 @@ class App {
         gpsMain.updateIconInfo();
         if (!gpsMain.checkCalibrado)
         {
-              //     /** Update the reticle position. */
+          
+          /** Update the reticle position. */
           this.reticle.visible = true;
           this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
           this.reticle.updateMatrixWorld(true);
@@ -166,14 +165,13 @@ class App {
           if(this.time <2)
           {
             this.time+= this.reloj.getDelta()
-            if (this.reticle.position.y<.5)
+            if (this.reticle.position.y<.5 && this.floor >this.reticle.position.y)
             {
               this.floor = this.reticle.position.y;
             }
           }
           else
           {
-            console.log(this.reticle.position.y)
             console.log("termino de calibrar")
             gpsMain.checkCalibrado = true; 
             gpsMain.setPivote(this.floor)
