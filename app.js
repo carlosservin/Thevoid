@@ -34,8 +34,8 @@
     document.getElementById("enter-ar").addEventListener("click", window.app.activateXR); 
     gpsMain.SetCameraGps(); 
     /**anim txt */
-    let anim = gsap.fromTo("#txt_Anim_AR",{scale: 0, opacity:0},{scale:1, opacity:1, duration:3})
-    anim.play();
+    // let anim = gsap.fromTo("#txt_Anim_AR",{scale: 0, opacity:0},{scale:1, opacity:1, duration:3})
+    // anim.play();
   } else {
     onNoXRDevice(); console.log ("nooo")
   }

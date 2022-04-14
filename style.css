@@ -109,5 +109,8 @@ body {
   z-index: 1;
   display: none;
 }
+div {
+  font-family: "Lilita one" !important;
+  }
 
 
