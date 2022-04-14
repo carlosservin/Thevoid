@@ -110,7 +110,8 @@ body {
   display: none;
 }
 div {
-  font-family: "Lilita one" !important;
+  /* font-family: "Lilita one" !important; */
+  font-family: "Sitka Text",Georgia, Cambria, Calibri;
   }
 
 

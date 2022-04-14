@@ -165,7 +165,7 @@ let gpsMain=
             // get the position of the center of the cube
             let tempV = new THREE.Vector3;
             // let distance = tempV.distanceTo(new THREE.Vector3(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.z,gpsMain.pose.transform.position.y));
-            gpsMain.polygonsTxt[i].center.position.z =-3//( -20 * Math.floor(distance))-2;
+            gpsMain.polygonsTxt[i].center.position.z =-5//( -20 * Math.floor(distance))-2;
 
             gpsMain.polygonsTxt[i].center.updateWorldMatrix(true, false);
             gpsMain.polygonsTxt[i].center.getWorldPosition(tempV);
