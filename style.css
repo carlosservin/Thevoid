@@ -2,10 +2,14 @@ body {
   margin: 0;
 }
 #container {
-  position: relative;  /* makes this the origin of its children */
-  width: 100vw;
-  height: 100vh;
+  position: absolute;  /* makes this the origin of its children */
+  /* width: 100vw; */
+  height: 100%;
+  width: 100%;
   overflow: hidden;
+  display: block;
+  top : 0px;
+  left:0px
 }
 #calibrating {
   position: absolute;

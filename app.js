@@ -142,8 +142,9 @@ class App {
       this.camera.matrix.fromArray(view.transform.matrix)
       this.camera.projectionMatrix.fromArray(view.projectionMatrix);
       this.camera.updateMatrixWorld(true);   
-      
-    
+                                                                                                                gpsMain.pose = pose;
+                                                                                                                gpsMain.updateRotarionCamera(view.transform.matrix)
+                                                                                                                gpsMain.updateIconInfo();
     //   /** Conduct hit test. */
       const hitTestResults = frame.getHitTestResults(this.hitTestSource);
 
@@ -154,46 +155,52 @@ class App {
       }
       if (hitTestResults.length > 0) {
         const hitPose = hitTestResults[0].getPose(this.localReferenceSpace);  
-
-        gpsMain.updateRotation(hitPose.transform)
-        gpsMain.updateIconInfo();
-        if (!gpsMain.checkCalibrado)
-        {
-          
           /** Update the reticle position. */
           this.reticle.visible = true;
           this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
           this.reticle.updateMatrixWorld(true);
-          document.querySelector('#calibrating').style.display = 'block';
-          if(this.time <2)
-          {
-            this.time+= this.reloj.getDelta()
-            if (this.reticle.position.y<.5 && this.floor >this.reticle.position.y)
-            {
-              this.floor = this.reticle.position.y;
-            }
-          }
-          else
-          {
-            console.log("termino de calibrar")
-            gpsMain.checkCalibrado = true; 
-            gpsMain.setPivote(this.floor)
-            gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
-            document.body.classList.add('stabilized');
-            this.reticle.visible = false;
-            document.querySelector('#calibrating').style.display = 'none';
-            document.querySelector('#mira').style.display= 'block'
+          document.body.classList.add('stabilized');
+          this.reticle.visible = false;
+          
+        // if (!gpsMain.checkCalibrado)
+        // {
+          
+        //   /** Update the reticle position. */
+        //   this.reticle.visible = true;
+        //   this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
+        //   this.reticle.updateMatrixWorld(true);
+        //   document.querySelector('#calibrating').style.display = 'block';
+        //   // if(this.time <2)
+        //   // {
+        //   //   this.time+= this.reloj.getDelta()
+        //   //   if (this.reticle.position.y<.5 && this.floor >this.reticle.position.y)
+        //   //   {
+        //   //     this.floor = this.reticle.position.y;
+        //   //   }
+        //   // }
+        //   // else
+        //   // {
+        //   //   console.log("termino de calibrar")
+        //   //   gpsMain.checkCalibrado = true; 
+        //   //   gpsMain.setPivote(this.floor)
+        //   //   gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
+        //   //   document.body.classList.add('stabilized');
+        //   //   this.reticle.visible = false;
+        //   //   document.querySelector('#calibrating').style.display = 'none';
+        //   //   document.querySelector('#mira').style.display= 'block'
 
-            //canvas
-            gpsMain.canvas =document.getElementById("container");  //this.canvas;
-            gpsMain.halfCanvas ={width: gpsMain.canvas.clientWidth/2, height:gpsMain.canvas.clientHeight/2}
-            console.log (gpsMain.canvas.clientHeight)
+        //   //   //canvas
+        //   //   gpsMain.canvas =document.getElementById("container");  //this.canvas;
+        //   //   gpsMain.halfCanvas ={width: gpsMain.canvas.clientWidth/2, height:gpsMain.canvas.clientHeight/2}
+        //   //   console.log (gpsMain.canvas.clientHeight)
+        //   //   gpsMain.screenSize = {width: window.innerWidth, height:window.innerHeight}
+        //   //   gpsMain.halfScreenSize= {width: window.innerWidth/2, height:window.innerHeight/2}
       
-          }  
-        }
+        //   // }  
+        // }
       }
 
-      gpsMain.pose = pose;
+      
       /*
       ray cast*/
 

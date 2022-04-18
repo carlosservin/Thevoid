@@ -1,6 +1,8 @@
 let gpsMain= 
 {   
     camera :"",
+    screenSize:"",
+    halfScreenSize:"",
     canvas:"",
     halfCanvas:"",
     touch:false,
@@ -124,7 +126,7 @@ let gpsMain=
         /** update rotation desdpues de calibrar */
         // gpsMain.pivote.rotation.set(0,(gpsMain.difCamara_difHeading)* Math.PI/180,0)
     },
-    updateRotation(transform)
+    updateRotation(camera, pose)
     {
         var heading =360- gpsMain.heading;
         gpsMain.cubeRF.lookAt(transform.position.x, gpsMain.cubeRF.position.y,transform.position.z)
@@ -136,7 +138,7 @@ let gpsMain=
         let difHeading = gpsMain.angulo180(gpsMain.heading)
         let difCamara = (camaraRotationY) //eje z
         let dif = difCamara +difHeading
-        gpsMain.difCamara_difHeading = dif;
+        gpsMain.difCamara_difHeading = dif;                                                                                                              /// ya no se usa la variable
 
         if (!gpsMain.checkCalibrado)
         {
@@ -154,6 +156,35 @@ let gpsMain=
             // console.log (gpsMain.pivote.position)
             // console.log ("__")
         }
+    },
+    updateRotarionCamera(matrix)
+    {
+        // console.log (matrix)
+        const m = new THREE.Matrix4().fromArray(matrix)
+        let mPosition = new THREE.Vector3();
+        let mQuaternion= new THREE.Quaternion();
+        let mScale= new THREE.Vector3();
+        m.decompose(mPosition,mQuaternion,mScale)
+        // console.log (mQuaternion)      
+        let poseY =gpsMain.toAngle(gpsMain.angleMagnitude(mQuaternion).y)
+        poseY = gpsMain.normalizeAngle0_360(poseY+180)
+        // console.log (poseY)
+
+        
+        let difHeading = gpsMain.angulo180(gpsMain.heading)
+        let dif = poseY +difHeading
+
+
+            gpsMain.pivote.rotation.set(0,(dif)* Math.PI/180,0)
+            gpsMain.pivote.position.set(mPosition.x,-1.5,mPosition.z)  
+
+            let pos = gpsMain.pivote.worldToLocal(new THREE.Vector3(mPosition.x,gpsMain.pivote.position.y,mPosition.z))
+            
+            gpsMain.pivoteCamera.position.copy(pos);
+
+        // document.getElementById("Test").innerHTML = gpsMain.heading
+        // document.getElementById("Test2").innerHTML = poseY
+        // document.getElementById("Test3").innerHTML = gpsMain.angulo180(dif)
     },
 
     updatePolygonsTxt(matrixWorldInverse,projectionMatrix)
@@ -182,8 +213,8 @@ let gpsMain=
             }else
             {
                 // convert the normalized position to CSS coordinates
-                const x = ((tempV.x *  .5 + .5) * gpsMain.canvas.clientWidth)- (elem.offsetWidth/2);
-                const y = ((tempV.y * -.5 + .5) * gpsMain.canvas.clientHeight)- (elem.offsetHeight/2);
+                const x = ((tempV.x *  .5 + .5) * gpsMain.screenSize.width)- (elem.offsetWidth/2);
+                const y = ((tempV.y * -.5 + .5) * gpsMain.screenSize.height)- (elem.offsetHeight/2);
                
                 // elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
                 // elem.style.transform = ` translate(${x}px,${y}px)`;
@@ -196,11 +227,10 @@ let gpsMain=
                   
                 let top = y - closeBtn.offsetTop-45
                 let left = x + closeBtn.offsetLeft;
-
-
-                if (top< gpsMain.halfCanvas.height+10 && top >gpsMain.halfCanvas.height-15 )
+                
+                if (top< gpsMain.halfScreenSize.height+35 && top >gpsMain.halfScreenSize.height+10 )
                 {
-                    if (left< gpsMain.halfCanvas.width-5&& left> gpsMain.halfCanvas.width-35 )
+                    if (left< gpsMain.halfScreenSize.width-5&& left> gpsMain.halfScreenSize.width-35 )
                     {
                         // console.log (left)
                         if(gpsMain.touch)
@@ -279,8 +309,11 @@ let gpsMain=
          plane.rotation.set(1.5708,1.5708*2,0);
          
         
-
-        // cube. position.set(1.5,0,1.5);
+         const geometryB = new THREE.BoxGeometry( 1, 1, 1 );
+         const materialB = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+         const cube = new THREE.Mesh( geometryB, materialB );
+         
+        cube. position.set(0,-1.5,2);
         //cube.visible = false;
         // scene.add(cube)
         // console.log (cube)
@@ -307,7 +340,7 @@ let gpsMain=
         // let c = gpsMain.createcubeTest();
         // gpsMain.pivote.add(c);
         // c.position.set(2,0,0)
-
+        gpsMain.pivote.add( cube );
     },
 
     normalizeAngle0_360(angle){
@@ -326,9 +359,25 @@ let gpsMain=
         }
         return angle;
     },
-    setPivote(floor)
+    setPivote(floor)  // ya no se ocupa
     {
         gpsMain.pivote.position.set(gpsMain.pivote.position.x,floor,gpsMain.pivote.position.z);
+    },
+    setCrearPolygons()
+    {
+        // gpsMain.setPivote(this.floor)
+        gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
+        // document.body.classList.add('stabilized');
+        // this.reticle.visible = false;
+        // document.querySelector('#calibrating').style.display = 'none';
+        document.querySelector('#mira').style.display= 'block'
+
+        //canvas
+        // gpsMain.canvas =document.getElementById("container");  //this.canvas;
+        // gpsMain.halfCanvas ={width: gpsMain.canvas.clientWidth/2, height:gpsMain.canvas.clientHeight/2}
+        // console.log (gpsMain.canvas.clientHeight)
+        gpsMain.screenSize = {width: window.innerWidth, height:window.innerHeight}
+        gpsMain.halfScreenSize= {width: window.innerWidth/2, height:window.innerHeight/2}
     },
 
     _loadVertexPolygon:function()
@@ -369,7 +418,7 @@ let gpsMain=
                 {
                     gpsMain.dataAPI = {data,_position};
                     if (typeof callBack=== 'function') callBack();
-                    //gpsMain.createPolygonsAPI(_position,data)
+                    gpsMain.setCrearPolygons()
                 })
         })
    },
