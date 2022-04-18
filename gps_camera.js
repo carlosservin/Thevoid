@@ -17,7 +17,7 @@ let gpsMain=
     pivoteCamera:"", 
     checkCalibrado :false,
     poligonosCreados : false,
-    difCamara_difHeading :"",
+    difCamara_difHeading :0,
     originCoords :
         {
             lat:0,
@@ -167,24 +167,31 @@ let gpsMain=
         m.decompose(mPosition,mQuaternion,mScale)
         // console.log (mQuaternion)      
         let poseY =gpsMain.toAngle(gpsMain.angleMagnitude(mQuaternion).y)
-        poseY = gpsMain.normalizeAngle0_360(poseY+180)
+        poseY = Math.round( gpsMain.normalizeAngle0_360(poseY+180))
         // console.log (poseY)
 
         
-        let difHeading = gpsMain.angulo180(gpsMain.heading)
-        let dif = poseY +difHeading
-
-
+        let difHeading = Math.round(gpsMain.angulo180(gpsMain.heading))
+        let dif = Math.round(poseY +difHeading)
+        if (Math.abs(dif-gpsMain.difCamara_difHeading)>4 )
+        {
+            // console.log ("actualizar")
+            gpsMain.difCamara_difHeading = dif
             gpsMain.pivote.rotation.set(0,(dif)* Math.PI/180,0)
             gpsMain.pivote.position.set(mPosition.x,-1.5,mPosition.z)  
 
             let pos = gpsMain.pivote.worldToLocal(new THREE.Vector3(mPosition.x,gpsMain.pivote.position.y,mPosition.z))
             
             gpsMain.pivoteCamera.position.copy(pos);
+        }
 
-        // document.getElementById("Test").innerHTML = gpsMain.heading
-        // document.getElementById("Test2").innerHTML = poseY
-        // document.getElementById("Test3").innerHTML = gpsMain.angulo180(dif)
+
+        
+
+
+        document.getElementById("Test").innerHTML = gpsMain.heading
+        document.getElementById("Test2").innerHTML = poseY
+        document.getElementById("Test3").innerHTML = gpsMain.angulo180(dif)
     },
 
     updatePolygonsTxt(matrixWorldInverse,projectionMatrix)
@@ -309,11 +316,11 @@ let gpsMain=
          plane.rotation.set(1.5708,1.5708*2,0);
          
         
-         const geometryB = new THREE.BoxGeometry( 1, 1, 1 );
-         const materialB = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-         const cube = new THREE.Mesh( geometryB, materialB );
+        //  const geometryB = new THREE.BoxGeometry( 1, 1, 1 );
+        //  const materialB = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+        //  const cube = new THREE.Mesh( geometryB, materialB );
          
-        cube. position.set(0,-1.5,2);
+        // cube. position.set(0,-1.5,2);
         //cube.visible = false;
         // scene.add(cube)
         // console.log (cube)
@@ -340,7 +347,7 @@ let gpsMain=
         // let c = gpsMain.createcubeTest();
         // gpsMain.pivote.add(c);
         // c.position.set(2,0,0)
-        gpsMain.pivote.add( cube );
+        // gpsMain.pivote.add( cube );
     },
 
     normalizeAngle0_360(angle){
