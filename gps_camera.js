@@ -189,9 +189,9 @@ let gpsMain=
         
 
 
-        document.getElementById("Test").innerHTML = gpsMain.heading
-        document.getElementById("Test2").innerHTML = poseY
-        document.getElementById("Test3").innerHTML = gpsMain.angulo180(dif)
+        // document.getElementById("Test").innerHTML = gpsMain.heading
+        // document.getElementById("Test2").innerHTML = poseY
+        // document.getElementById("Test3").innerHTML = gpsMain.angulo180(dif)
     },
 
     updatePolygonsTxt(matrixWorldInverse,projectionMatrix)
@@ -374,7 +374,7 @@ let gpsMain=
     {
         // gpsMain.setPivote(this.floor)
         gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
-        // document.body.classList.add('stabilized');
+        document.body.classList.add('stabilized');
         // this.reticle.visible = false;
         // document.querySelector('#calibrating').style.display = 'none';
         document.querySelector('#mira').style.display= 'block'
@@ -392,8 +392,8 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-    //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     },
     
     /*

@@ -103,7 +103,7 @@ class App {
     this.viewerSpace = await this.xrSession.requestReferenceSpace('viewer');                
 
     /** Perform hit testing using the viewer as origin. */
-    this.hitTestSource = await this.xrSession.requestHitTestSource({ space: this.viewerSpace });
+    // this.hitTestSource = await this.xrSession.requestHitTestSource({ space: this.viewerSpace });
     /** Start a rendering loop using this.onXRFrame. */
     this.xrSession.requestAnimationFrame(this.onXRFrame);
                                                                                 
@@ -146,59 +146,59 @@ class App {
                                                                                                                 gpsMain.updateRotarionCamera(view.transform.matrix)
                                                                                                                 gpsMain.updateIconInfo();
     //   /** Conduct hit test. */
-      const hitTestResults = frame.getHitTestResults(this.hitTestSource);
+    //   const hitTestResults = frame.getHitTestResults(this.hitTestSource);
 
-    //   /** If we have results, consider the environment stabilized. */
-      if (!this.stabilized && hitTestResults.length > 0) {
-        this.stabilized = true;
-        //document.body.classList.add('stabilized');                                
-      }
-      if (hitTestResults.length > 0) {
-        const hitPose = hitTestResults[0].getPose(this.localReferenceSpace);  
-          /** Update the reticle position. */
-          this.reticle.visible = true;
-          this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
-          this.reticle.updateMatrixWorld(true);
-          document.body.classList.add('stabilized');
-          this.reticle.visible = false;
+    // //   /** If we have results, consider the environment stabilized. */
+    //   if (!this.stabilized && hitTestResults.length > 0) {
+    //     this.stabilized = true;
+    //     //document.body.classList.add('stabilized');                                
+    //   }
+    //   if (hitTestResults.length > 0) {
+    //     const hitPose = hitTestResults[0].getPose(this.localReferenceSpace);  
+    //       /** Update the reticle position. */
+    //       this.reticle.visible = true;
+    //       this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
+    //       this.reticle.updateMatrixWorld(true);
+    //       document.body.classList.add('stabilized');
+    //       this.reticle.visible = false;
           
-        // if (!gpsMain.checkCalibrado)
-        // {
+    //     // if (!gpsMain.checkCalibrado)
+    //     // {
           
-        //   /** Update the reticle position. */
-        //   this.reticle.visible = true;
-        //   this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
-        //   this.reticle.updateMatrixWorld(true);
-        //   document.querySelector('#calibrating').style.display = 'block';
-        //   // if(this.time <2)
-        //   // {
-        //   //   this.time+= this.reloj.getDelta()
-        //   //   if (this.reticle.position.y<.5 && this.floor >this.reticle.position.y)
-        //   //   {
-        //   //     this.floor = this.reticle.position.y;
-        //   //   }
-        //   // }
-        //   // else
-        //   // {
-        //   //   console.log("termino de calibrar")
-        //   //   gpsMain.checkCalibrado = true; 
-        //   //   gpsMain.setPivote(this.floor)
-        //   //   gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
-        //   //   document.body.classList.add('stabilized');
-        //   //   this.reticle.visible = false;
-        //   //   document.querySelector('#calibrating').style.display = 'none';
-        //   //   document.querySelector('#mira').style.display= 'block'
+    //     //   /** Update the reticle position. */
+    //     //   this.reticle.visible = true;
+    //     //   this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
+    //     //   this.reticle.updateMatrixWorld(true);
+    //     //   document.querySelector('#calibrating').style.display = 'block';
+    //     //   // if(this.time <2)
+    //     //   // {
+    //     //   //   this.time+= this.reloj.getDelta()
+    //     //   //   if (this.reticle.position.y<.5 && this.floor >this.reticle.position.y)
+    //     //   //   {
+    //     //   //     this.floor = this.reticle.position.y;
+    //     //   //   }
+    //     //   // }
+    //     //   // else
+    //     //   // {
+    //     //   //   console.log("termino de calibrar")
+    //     //   //   gpsMain.checkCalibrado = true; 
+    //     //   //   gpsMain.setPivote(this.floor)
+    //     //   //   gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
+    //     //   //   document.body.classList.add('stabilized');
+    //     //   //   this.reticle.visible = false;
+    //     //   //   document.querySelector('#calibrating').style.display = 'none';
+    //     //   //   document.querySelector('#mira').style.display= 'block'
 
-        //   //   //canvas
-        //   //   gpsMain.canvas =document.getElementById("container");  //this.canvas;
-        //   //   gpsMain.halfCanvas ={width: gpsMain.canvas.clientWidth/2, height:gpsMain.canvas.clientHeight/2}
-        //   //   console.log (gpsMain.canvas.clientHeight)
-        //   //   gpsMain.screenSize = {width: window.innerWidth, height:window.innerHeight}
-        //   //   gpsMain.halfScreenSize= {width: window.innerWidth/2, height:window.innerHeight/2}
+    //     //   //   //canvas
+    //     //   //   gpsMain.canvas =document.getElementById("container");  //this.canvas;
+    //     //   //   gpsMain.halfCanvas ={width: gpsMain.canvas.clientWidth/2, height:gpsMain.canvas.clientHeight/2}
+    //     //   //   console.log (gpsMain.canvas.clientHeight)
+    //     //   //   gpsMain.screenSize = {width: window.innerWidth, height:window.innerHeight}
+    //     //   //   gpsMain.halfScreenSize= {width: window.innerWidth/2, height:window.innerHeight/2}
       
-        //   // }  
-        // }
-      }
+    //     //   // }  
+    //     // }
+    //   }
 
       
       /*
@@ -277,8 +277,8 @@ class App {
     // this.scene = DemoUtils.createCubeScene();
     //this.scene = DemoUtils.createLitScene();          
     this.scene =gpsMain.createLitScene();
-    this.reticle = new Reticle();
-    this.scene.add(this.reticle);
+    // this.reticle = new Reticle();
+    // this.scene.add(this.reticle);
 
     /** We'll update the camera matrices directly from API, so
      * disable matrix auto updates so three.js doesn't attempt
@@ -289,9 +289,9 @@ class App {
     gpsMain._loadVertexPolygon();
     gpsMain.camera = this.camera;    
     gpsMain.crearcuboReferencia(this.scene)
-    this.reloj = new THREE.Clock()
-    this.time=0;
-    this.floor =0;
+    // this.reloj = new THREE.Clock()
+    // this.time=0;
+    // this.floor =0;
     this.raycaster = new THREE.Raycaster();
     this.INTERSECTED;
     // btn restart
