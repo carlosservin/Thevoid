@@ -36,57 +36,27 @@ let gpsMain=
         pose: "",
         _onDeviceOrientation : "",
         heading : "",
-        
-        /* 
-        test coordinates mi casa
-        */
-       
-        // testCoordinates: [
-        //     {lat:19.359886, lng: -98.980933},//avind-hora
-        //     {lat:19.359337, lng:-98.980989}, //avind-pueb
-        //     {lat:19.359141, lng:-98.979514}, //avsim-pueb
-        //     {lat:19.359719, lng: -98.979399}], //avsim-hora
-        //     // {lat:19.359891, lng:-98.980932},
-        //     // {lat:19.359904, lng:-98.980599}],
-          
-           
-        // testCoordinates1:[   {"lat":27.4995,"lng":-82.556286},
-        //                     {"lat":27.499451,"lng":-82.556323},
-        //                     {"lat":27.49934,"lng":-82.556339},
-        //                     {"lat":27.499279,"lng":-82.556341},
-        //                     {"lat":27.499276,"lng":-82.556388},
-        //                     {"lat":27.499306,"lng":-82.556427},
-        //                     {"lat":27.499476,"lng":-82.556384},
-        //                     {"lat":27.499545,"lng":-82.556325}],
-        
-        // testCoordinates2:[  {"lat":27.499668,"lng":-82.556634},
-        //                     {"lat":27.499621,"lng":-82.556744},
-        //                     {"lat":27.499523,"lng":-82.556771},
-        //                     {"lat":27.499481,"lng":-82.556701},
-        //                     {"lat":27.499533,"lng":-82.556579},
-        //                     {"lat":27.499628,"lng":-82.556555}],
 
-        
     SetCameraGps: function ()
     {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position)
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position)
+            {
+                gpsMain.originCoords.lat = position.coords.latitude;
+                gpsMain.originCoords.lng = position.coords.longitude;
+            });
+            navigator.geolocation.watchPosition((position)=>
+            {
+                gpsMain.currentCoords.lat = position.coords.latitude;
+                gpsMain.currentCoords.lng = position.coords.longitude;
+                if (gpsMain.checkCalibrado)
                 {
-                    gpsMain.originCoords.lat = position.coords.latitude;
-                    gpsMain.originCoords.lng = position.coords.longitude;
-                });
-                navigator.geolocation.watchPosition((position)=>
-                {
-                    gpsMain.currentCoords.lat = position.coords.latitude;
-                    gpsMain.currentCoords.lng = position.coords.longitude;
-                    if (gpsMain.checkCalibrado)
-                    {
-                        gpsMain.updatePosition();
-                    }
+                    gpsMain.updatePosition();
+                }
 
-                })
-            } else {
-                x.innerHTML = "Geolocation is not supported by this browser.";
+            })
+        } else {
+            x.innerHTML = "Geolocation is not supported by this browser.";
         }
         var eventName = this._getDeviceOrientationEventName();
         gpsMain._onDeviceOrientation = gpsMain._onDeviceOrientation.bind(this);
@@ -126,37 +96,6 @@ let gpsMain=
         /** update rotation desdpues de calibrar */
         // gpsMain.pivote.rotation.set(0,(gpsMain.difCamara_difHeading)* Math.PI/180,0)
     },
-    updateRotation(camera, pose)
-    {
-        var heading =360- gpsMain.heading;
-        gpsMain.cubeRF.lookAt(transform.position.x, gpsMain.cubeRF.position.y,transform.position.z)
-        gpsMain.cubeRF.position.set(gpsMain.pose.transform.position.x,gpsMain.cubeRF.position.y,gpsMain.pose.transform.position.z)
-        
-        var camaraRotationY =gpsMain.toAngle(gpsMain.angleMagnitude(gpsMain.cubeRF.quaternion).y)
-        camaraRotationY = gpsMain.normalizeAngle0_360(camaraRotationY)
-        
-        let difHeading = gpsMain.angulo180(gpsMain.heading)
-        let difCamara = (camaraRotationY) //eje z
-        let dif = difCamara +difHeading
-        gpsMain.difCamara_difHeading = dif;                                                                                                              /// ya no se usa la variable
-
-        if (!gpsMain.checkCalibrado)
-        {
-            gpsMain.pivote.rotation.set(0,(dif)* Math.PI/180,0)
-            gpsMain.pivote.position.set(gpsMain.pose.transform.position.x,gpsMain.pivote.position.y,gpsMain.pose.transform.position.z)         
-        }else
-        {
-            
-            // gpsMain.pivoteCamera.rotation.set(0,(dif)* Math.PI/180,0)
-            //gpsMain.pivoteCamera.position.set(gpsMain.pose.transform.position.x,gpsMain.pivote.position.y,gpsMain.pose.transform.position.z)
-            let pos = gpsMain.pivote.worldToLocal(new THREE.Vector3(gpsMain.pose.transform.position.x,gpsMain.pivote.position.y,gpsMain.pose.transform.position.z))
-            
-            gpsMain.pivoteCamera.position.copy(pos);
-            // console.log (gpsMain.pivoteCamera.position);
-            // console.log (gpsMain.pivote.position)
-            // console.log ("__")
-        }
-    },
     updateRotarionCamera(matrix)
     {
         // console.log (matrix)
@@ -183,18 +122,13 @@ let gpsMain=
             let pos = gpsMain.pivote.worldToLocal(new THREE.Vector3(mPosition.x,gpsMain.pivote.position.y,mPosition.z))
             
             gpsMain.pivoteCamera.position.copy(pos);
-        }
-
-
-        
-
-
+        }     
         // document.getElementById("Test").innerHTML = gpsMain.heading
         // document.getElementById("Test2").innerHTML = poseY
         // document.getElementById("Test3").innerHTML = gpsMain.angulo180(dif)
     },
 
-    updatePolygonsTxt(matrixWorldInverse,projectionMatrix)
+    updatePolygonsTxt(matrixWorldInverse,projectionMatrix,pose)
     {
         for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
         {
@@ -203,10 +137,14 @@ let gpsMain=
             // get the position of the center of the cube
             let tempV = new THREE.Vector3;
             // let distance = tempV.distanceTo(new THREE.Vector3(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.z,gpsMain.pose.transform.position.y));
-            gpsMain.polygonsTxt[i].center.position.z =-5//( -20 * Math.floor(distance))-2;
+            
 
             gpsMain.polygonsTxt[i].center.updateWorldMatrix(true, false);
             gpsMain.polygonsTxt[i].center.getWorldPosition(tempV);
+            let distancia = tempV.distanceTo(new THREE.Vector3(pose.transform.position.x,pose.transform.position.y,pose.transform.position.z)) 
+            //altura del ele html
+            tempV.y =+ ((distancia/100)*10)+2
+
             // get the normalized screen coordinate of that position
             // x and y will be in the -1 to +1 range with x = -1 being
             // on the left and y = -1 being on the bottom            

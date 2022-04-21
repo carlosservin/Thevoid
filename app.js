@@ -33,11 +33,8 @@
   if (isArSessionSupported) {
     document.getElementById("enter-ar").addEventListener("click", window.app.activateXR); 
     gpsMain.SetCameraGps(); 
-    /**anim txt */
-    // let anim = gsap.fromTo("#txt_Anim_AR",{scale: 0, opacity:0},{scale:1, opacity:1, duration:3})
-    // anim.play();
   } else {
-    onNoXRDevice(); console.log ("nooo")
+    onNoXRDevice();
   }
 })();
 
@@ -136,71 +133,18 @@ class App {
     
       const viewport = this.xrSession.renderState.baseLayer.getViewport(view);
       this.renderer.setSize(viewport.width, viewport.height)
-    //
-    gpsMain.updatePolygonsTxt(view.transform.inverse.matrix,view.projectionMatrix);     
+    
       /** Use the view's transform matrix and projection matrix to configure the THREE.camera. */
       this.camera.matrix.fromArray(view.transform.matrix)
       this.camera.projectionMatrix.fromArray(view.projectionMatrix);
       this.camera.updateMatrixWorld(true);   
-                                                                                                                gpsMain.pose = pose;
-                                                                                                                gpsMain.updateRotarionCamera(view.transform.matrix)
-                                                                                                                gpsMain.updateIconInfo();
-    //   /** Conduct hit test. */
-    //   const hitTestResults = frame.getHitTestResults(this.hitTestSource);
-
-    // //   /** If we have results, consider the environment stabilized. */
-    //   if (!this.stabilized && hitTestResults.length > 0) {
-    //     this.stabilized = true;
-    //     //document.body.classList.add('stabilized');                                
-    //   }
-    //   if (hitTestResults.length > 0) {
-    //     const hitPose = hitTestResults[0].getPose(this.localReferenceSpace);  
-    //       /** Update the reticle position. */
-    //       this.reticle.visible = true;
-    //       this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
-    //       this.reticle.updateMatrixWorld(true);
-    //       document.body.classList.add('stabilized');
-    //       this.reticle.visible = false;
-          
-    //     // if (!gpsMain.checkCalibrado)
-    //     // {
-          
-    //     //   /** Update the reticle position. */
-    //     //   this.reticle.visible = true;
-    //     //   this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z);   
-    //     //   this.reticle.updateMatrixWorld(true);
-    //     //   document.querySelector('#calibrating').style.display = 'block';
-    //     //   // if(this.time <2)
-    //     //   // {
-    //     //   //   this.time+= this.reloj.getDelta()
-    //     //   //   if (this.reticle.position.y<.5 && this.floor >this.reticle.position.y)
-    //     //   //   {
-    //     //   //     this.floor = this.reticle.position.y;
-    //     //   //   }
-    //     //   // }
-    //     //   // else
-    //     //   // {
-    //     //   //   console.log("termino de calibrar")
-    //     //   //   gpsMain.checkCalibrado = true; 
-    //     //   //   gpsMain.setPivote(this.floor)
-    //     //   //   gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
-    //     //   //   document.body.classList.add('stabilized');
-    //     //   //   this.reticle.visible = false;
-    //     //   //   document.querySelector('#calibrating').style.display = 'none';
-    //     //   //   document.querySelector('#mira').style.display= 'block'
-
-    //     //   //   //canvas
-    //     //   //   gpsMain.canvas =document.getElementById("container");  //this.canvas;
-    //     //   //   gpsMain.halfCanvas ={width: gpsMain.canvas.clientWidth/2, height:gpsMain.canvas.clientHeight/2}
-    //     //   //   console.log (gpsMain.canvas.clientHeight)
-    //     //   //   gpsMain.screenSize = {width: window.innerWidth, height:window.innerHeight}
-    //     //   //   gpsMain.halfScreenSize= {width: window.innerWidth/2, height:window.innerHeight/2}
       
-    //     //   // }  
-    //     // }
-    //   }
-
       
+      gpsMain.updatePolygonsTxt(view.transform.inverse.matrix,view.projectionMatrix,pose); 
+      gpsMain.pose = pose;                                                                                                                
+      gpsMain.updateRotarionCamera(view.transform.matrix)                                                                                                                
+      gpsMain.updateIconInfo();
+
       /*
       ray cast*/
 
@@ -234,23 +178,7 @@ class App {
             }
             this.INTERSECTED = null;
         }
-          // if (tocando)
-          // {
-          //   console.log("___ ray")
-          //   console.log (intersects[0].object)
-          //   if (intersects[0].object.parent.isPolygon)
-          //   {
-          //     if (!intersects[0].object.parent.openInfo)
-          //     {
-          //       gpsMain.openElemen(intersects[0].object.parent);
-          //       intersects[0].object.visible = false;
-          //     }          
-          //   }                                                           
 
-          // }
-      
-
-     
       /** Render the scene with THREE.WebGLRenderer. */
       this.renderer.render(this.scene, this.camera)
     }
