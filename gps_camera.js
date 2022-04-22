@@ -63,14 +63,7 @@ let gpsMain=
         window.addEventListener(eventName, gpsMain._onDeviceOrientation, false);
         console.log(gpsMain._onDeviceOrientation)
     },
-    updateIconInfo()
-    {
-        gpsMain.iconInfoP.forEach(element => {
-            element.lookAt(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.y,gpsMain.pose.transform.position.z)
-        });
-        
 
-    },
 
     updatePosition()
     {
@@ -186,6 +179,14 @@ let gpsMain=
                 }             
             }
         }
+    },
+    updateIconInfo()
+    {
+        gpsMain.iconInfoP.forEach(element => {
+            element.lookAt(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.y,gpsMain.pose.transform.position.z)
+        });
+        
+
     },
     openElemen(mesh)
     {
@@ -332,6 +333,7 @@ let gpsMain=
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
         //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
        gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+    // gpsMain._getVertexPolygon({"lat":27.546,"lng":-82.58481})
     },
     
     /*
@@ -347,7 +349,7 @@ let gpsMain=
             for : 'sumeru',
             lat : _position.lat,
             lng: _position.lng,
-            dist_miles: '.25',//400 metros
+            dist_miles: '.5',//400 metros
             url:'https://community.saltstrong.com/api/get_polygons.php?'
         };
 
@@ -380,7 +382,7 @@ let gpsMain=
             for(let i = 0; i<polygon.length;i++)
             // for(let i = 0; i<1;i++)
             {
-                if (polygon[i].distance<= 0.25) // 400 meters
+                if (polygon[i].distance<= 0.5) // 800 meters
                 {
                     // let grupo = JSON.parse(polygon[i].PolygonCoords);
                     // //gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
