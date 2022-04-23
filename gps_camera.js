@@ -116,7 +116,7 @@ let gpsMain=
             
             gpsMain.pivoteCamera.position.copy(pos);
         }     
-        // document.getElementById("Test").innerHTML = gpsMain.heading
+        document.getElementById("Test").innerHTML = gpsMain.heading
         // document.getElementById("Test2").innerHTML = poseY
         // document.getElementById("Test3").innerHTML = gpsMain.angulo180(dif)
     },
@@ -180,10 +180,16 @@ let gpsMain=
             }
         }
     },
-    updateIconInfo()
+    updateIconInfo(pose)
     {
         gpsMain.iconInfoP.forEach(element => {
-            element.lookAt(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.y,gpsMain.pose.transform.position.z)
+            element.lookAt(pose.transform.position.x,pose.transform.position.y,pose.transform.position.z)
+            let distance = new THREE.Vector3;
+            element.getWorldPosition(distance);
+            distance = distance.distanceTo(new THREE.Vector3(pose.transform.position.x,pose.transform.position.y,pose.transform.position.z));
+            let scale = ((distance/100)*2)+1;
+             element.scale.set(scale,scale,scale)
+             element.position.z = -((distance/100)*5)-2
         });
         
 
@@ -729,6 +735,7 @@ let gpsMain=
                 gpsMain.heading = event.webkitCompassHeading;
             } else {
                 console.warn('webkitCompassAccuracy is event.webkitCompassAccuracy');
+                console.log ('webkitCompassAccuracy is event.webkitCompassAccuracy')
             }
         } else if (event.alpha !== null) {
             if (event.absolute === true || event.absolute === undefined) {

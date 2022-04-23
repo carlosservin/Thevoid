@@ -143,7 +143,7 @@ class App {
       gpsMain.updatePolygonsTxt(view.transform.inverse.matrix,view.projectionMatrix,pose); 
       gpsMain.pose = pose;                                                                                                                
       gpsMain.updateRotarionCamera(view.transform.matrix)                                                                                                                
-      gpsMain.updateIconInfo();
+      gpsMain.updateIconInfo(pose);
 
       /*
       ray cast*/
