@@ -33,7 +33,7 @@ body {
   position: absolute;  /* let us position them inside the container */
   left: 0;             /* make their default position the top left of the container */
   top: 0;
-  cursor: pointer;     /* change the cursor to a hand when over us */
+  /* cursor: pointer;     change the cursor to a hand when over us */
   font-size: large;
   user-select: none;   /* don't let the text get selected */
   /* text-shadow:         /* create a black outline 
@@ -49,9 +49,9 @@ body {
   border-radius: 10px;
   border: 10px solid rgba(255, 255, 255, 0);
 }
-#labels>div:hover {
+/* #labels>div:hover {
   color: red;
-}
+} */
 .button {
   background-color: rgba(255, 255, 255, 0.9);
   border: none;
@@ -80,6 +80,20 @@ body {
   background-size: contain;
   background-color: rgba(255, 255, 255, 0.0);
 
+}
+.buttonUrl
+{
+  background-color: #4482c3; /* blue */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
 }
 .restart
 {

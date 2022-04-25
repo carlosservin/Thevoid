@@ -158,15 +158,9 @@ class App {
           {         
             if (this.INTERSECTED)
             {
-              // this.INTERSECTED.scale.x = 2
-              // this.INTERSECTED.scale.y = 2
-              // this.INTERSECTED.scale.z = 2   
               this.INTERSECTED.scale.set(2,2,2)   
             }   
-            this.INTERSECTED = intersects[ 0 ].object;            
-            // this.INTERSECTED.scale.x = 2
-            // this.INTERSECTED.scale.y = 2
-            // this.INTERSECTED.scale.z = 2 
+            this.INTERSECTED = intersects[ 0 ].object;          
             this.INTERSECTED.scale.set(2,2,2) 
           }
         }
@@ -174,9 +168,6 @@ class App {
         {
             if (this.INTERSECTED)
             {
-              // this.INTERSECTED.scale.x = 1
-              // this.INTERSECTED.scale.y = 1
-              // this.INTERSECTED.scale.z = 1 
               this.INTERSECTED.scale.set(1,1,1)   
             }
             this.INTERSECTED = null;
@@ -241,7 +232,7 @@ class App {
         console.log(this.INTERSECTED)
         gpsMain.openElemen(this.INTERSECTED.parent.parent);
         this.INTERSECTED.visible = false;
-        // this.INTERSECTED.position.set(50,50,50)//mandarlo a otro lugar
+        this.INTERSECTED.position.set(50,50,50)//mandarlo a otro lugar
         this.INTERSECTED.scale.set(0,0,0)
       }
     }

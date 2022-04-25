@@ -61,7 +61,6 @@ let gpsMain=
         var eventName = this._getDeviceOrientationEventName();
         gpsMain._onDeviceOrientation = gpsMain._onDeviceOrientation.bind(this);
         window.addEventListener(eventName, gpsMain._onDeviceOrientation, false);
-        console.log(gpsMain._onDeviceOrientation)
     },
 
 
@@ -159,23 +158,39 @@ let gpsMain=
                 elem.style.left = x +"px"
                 elem.style.top = y+"px"
                 elem.style.display = '';
-                let closeBtn= elem.querySelector('#closeButton');
                 
-                  
-                let top = y - closeBtn.offsetTop-45
-                let left = x + closeBtn.offsetLeft;
                 
-                if (top< gpsMain.halfScreenSize.height+35 && top >gpsMain.halfScreenSize.height+10 )
+                /** Btn close Button*/
+                let btn= elem.querySelector('#closeButton');
+                let top = y - btn.offsetTop;
+                let left = x + btn.offsetLeft;                
+                if (top -45< gpsMain.halfScreenSize.height+35 && top-45 >gpsMain.halfScreenSize.height+10 ) // -45 margin-top
                 {
                     if (left< gpsMain.halfScreenSize.width-5&& left> gpsMain.halfScreenSize.width-35 )
                     {
                         // console.log (left)
                         if(gpsMain.touch)
                         {
-                            closeBtn.onclick()
+                            btn.onclick()
                         }
                     }
-                }             
+                }
+                /**btn url */
+                btn= elem.querySelector('#btnUrl');
+                top = y + btn.offsetTop;
+                left = x + btn.offsetLeft+5; 
+                // console.log (left)
+                if (top<gpsMain.halfScreenSize.height&& top>gpsMain.halfScreenSize.height-btn.offsetHeight)
+                {
+                    if (left<gpsMain.halfScreenSize.width && left>gpsMain.halfScreenSize.width- btn.offsetWidth)
+                    {
+                        if(gpsMain.touch)
+                        {
+                            btn.onclick()
+                        }
+                    }
+                }        
+                
             }
         }
     },
@@ -333,12 +348,12 @@ let gpsMain=
 
     _loadVertexPolygon:function()
     {
-        console.log("pedir data")
+        // console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
     //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
-    gpsMain._getVertexPolygon({"lat":27.546,"lng":-82.58481})
+    // gpsMain._getVertexPolygon({"lat":27.546,"lng":-82.58481})
     },
     
     /*
@@ -377,7 +392,7 @@ let gpsMain=
    },
    createPolygonsAPI(_position,data)
    {
-        console.log(data.result)
+        // console.log(data.result)
         if (data.status !="error")
         {
 
@@ -394,17 +409,8 @@ let gpsMain=
                 {
                     if (polygon[i].distance<= 0.5) // 800 meters
                     {
-                        // let grupo = JSON.parse(polygon[i].PolygonCoords);
-                        // //gpsMain.createLabel(polygon[i].html,polygon[i].url, polygon[i].Name)
-                        // for (let j = 0; j<grupo.length; j++)
-                        // // for (let j = 0; j<1; j++)
-                        // {
-                        //     gpsMain.createPolygon(_position,grupo[j],polygon[i].color,polygon[i].html,polygon[i].url,polygon[i].Name,polygon[i].id)
-                        //     //console.log (grupo[j]);
-
-                        // }
                         idPolygons_tem.push(polygon[i]) 
-                        console.log (polygon[i])  
+                        // console.log (polygon[i])  
                     }                             
                 }
                 gpsMain.checkPolygons(idPolygons_tem, _position)
@@ -588,14 +594,30 @@ let gpsMain=
             mesh.openInfo = false;
             // mesh.iconInfoP.children[0].position.copy ( mesh.iconInfoP.originPos)
             mesh.iconInfoP.children[0].scale.set (1,1,1)
+            mesh.iconInfoP.children[0].position.set (0,0,0)
             mesh.iconInfoP.children[0].visible = true 
         }
         //elem.setAttribute('href',_url)
-        
-        elem.innerHTML = '<a href="'+_url+'">'+'<p>'+name+"<\/p></a>"+txthtml ;
+        const btnUrl = document.createElement('button');
+        btnUrl.setAttribute("class", "button buttonUrl")
+        btnUrl.setAttribute("id", "btnUrl");
+        btnUrl.innerHTML = name;
+        btnUrl.onclick = function()
+        {
+            // console.log ("abrir url")
+            window.location.href = _url
+        }
+        /** txt html */
+        const txtHtml = document.createElement('div');
+        txtHtml.innerHTML = txthtml
+        // elem.innerHTML = '<a href="'+_url+'">'+'<p>'+name+"<\/p></a>"+txthtml ;
+        // console.log (elem)
         //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")        
         labelContainerElem.appendChild(elem);
         elem.appendChild(closeElem);
+        elem.appendChild(btnUrl)
+        elem.appendChild(txtHtml)
+
         return elem;
     },
     /**
