@@ -113,6 +113,23 @@ body {
   z-index: 1;
   display: none;
 }
+.message
+{
+  position: absolute;
+  top: 50%;
+  width: 80%;
+  height: 50%;
+  left: 50%;
+  z-index: 2;
+  background-color: #ffffffdc; 
+  border-radius: 5%;  
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: none;
+
+}
+
+
 div {
   /* font-family: "Lilita one" !important; */
   font-family: "Sitka Text",Georgia, Cambria, Calibri;
