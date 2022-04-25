@@ -336,9 +336,9 @@ let gpsMain=
         console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
     //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
-    gpsMain._getVertexPolygon({"lat":27.546,"lng":-82.58481})
+    // gpsMain._getVertexPolygon({"lat":27.546,"lng":-82.58481})
     },
     
     /*
@@ -582,12 +582,13 @@ let gpsMain=
         {
             //gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
             console.log ("cerrar")
+            console.log (mesh.iconInfoP.children[0])
             gpsMain.polygonsTxt = gpsMain.polygonsTxt.filter(_mesh=> _mesh.center.uuid !=mesh.children[0].uuid)
             elem.style.display = "none"
             mesh.openInfo = false;
-            mesh.iconInfoP.visible = true;
-            mesh.iconInfoP.position.copy ( mesh.iconInfoP.originPos)
-            mesh.iconInfoP.visible = true 
+            // mesh.iconInfoP.children[0].position.copy ( mesh.iconInfoP.originPos)
+            mesh.iconInfoP.children[0].scale.set (1,1,1)
+            mesh.iconInfoP.children[0].visible = true 
         }
         //elem.setAttribute('href',_url)
         

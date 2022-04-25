@@ -241,7 +241,8 @@ class App {
         console.log(this.INTERSECTED)
         gpsMain.openElemen(this.INTERSECTED.parent.parent);
         this.INTERSECTED.visible = false;
-        this.INTERSECTED.position.set(50,50,50)//mandarlo a otro lugar
+        // this.INTERSECTED.position.set(50,50,50)//mandarlo a otro lugar
+        this.INTERSECTED.scale.set(0,0,0)
       }
     }
   }
