@@ -104,7 +104,7 @@ let gpsMain=
         
         let difHeading = Math.round(gpsMain.angulo180(gpsMain.heading))
         let dif = Math.round(poseY +difHeading)
-        if (Math.abs(dif-gpsMain.difCamara_difHeading)>4 )
+        if (Math.abs(dif-gpsMain.difCamara_difHeading)>7 )
         {
             // console.log ("actualizar")
             gpsMain.difCamara_difHeading = dif
@@ -351,8 +351,8 @@ let gpsMain=
         // console.log("pedir data")
         
         // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-         gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-    //    gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
     // gpsMain._getVertexPolygon({"lat":27.546,"lng":-82.58481})
     },
     
