@@ -460,6 +460,8 @@ let gpsMain=
    },
    addGroups(ids,_position)
    {
+       console.log ("agregar")
+    console.log (ids)
         for (let i = 0 ; i<ids.length;i++)
         {
             gpsMain.groupIDPoygons.push(ids[i])
