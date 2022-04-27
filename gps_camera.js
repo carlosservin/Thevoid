@@ -28,14 +28,10 @@ let gpsMain=
             lat:0,
             lng: 0
         },
-    updateCoords :
-        {
-            lat:0,
-            lng: 0
-        },
-        pose: "",
+
         _onDeviceOrientation : "",
         heading : "",
+        coords_accuracy:"",
 
     SetCameraGps: function ()
     {
@@ -44,14 +40,20 @@ let gpsMain=
             {
                 gpsMain.originCoords.lat = position.coords.latitude;
                 gpsMain.originCoords.lng = position.coords.longitude;
+                gpsMain.coords_accuracy = document.getElementById("coordsAccuracy")
+                gpsMain.coords_accuracy.innerHTML ="The accuracy of position: "+ (Math.round( position.coords.accuracy *  1.094)) +" yard"
+                gpsMain.coords_accuracy.style.display = "block"
+                
             });
             navigator.geolocation.watchPosition((position)=>
             {
                 gpsMain.currentCoords.lat = position.coords.latitude;
                 gpsMain.currentCoords.lng = position.coords.longitude;
+                // console.log("lat  "+position.coords.latitude + "  lgn  "+position.coords.longitude)
                 if (gpsMain.checkCalibrado)
                 {
                     gpsMain.updatePosition();
+                    gpsMain.coords_accuracy.innerHTML ="The accuracy of position: "+ (Math.round( position.coords.accuracy *  1.094)) +" yard"
                 }
 
             })
@@ -68,25 +70,18 @@ let gpsMain=
     {
         let coord =gpsMain.coordinateToVirtualSpace(gpsMain.originCoords,gpsMain.currentCoords)
         // console.log(coord)
-        // console.log (gpsMain.pivoteCamera.position.x)
-        // console.log (coord.x - gpsMain.pivoteCamera.position.x)
-        // console.log ("promedio X: " + (coord.x - gpsMain.pivoteCamera.position.x)/2)
-        // console.log ("promedio Z: " + (coord.y - gpsMain.pivoteCamera.position.z)/2)
-        gpsMain.pivotePoligono.x +=  ((coord.x - gpsMain.pivoteCamera.position.x)/2);
-        gpsMain.pivotePoligono.z +=  ((coord.y - gpsMain.pivoteCamera.position.z)/2);
 
+        gpsMain.pivotePoligono.position.x =  coord.x;
+        gpsMain.pivotePoligono.position.z =  coord.y;
         let dist = gpsMain.computeDistanceMeters(gpsMain.originCoords, gpsMain.currentCoords)
         // document.getElementById("Test").innerHTML = dist
-        if (dist>= 200) //200meters
+        if (dist>= 100) //100meters
         {
             gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng},()=>{gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)})
             //resert origin coords
-            gpsMain.originCoords.lat = position.coords.latitude;
-            gpsMain.originCoords.lng = position.coords.longitude;
+            gpsMain.originCoords.lat = gpsMain.currentCoords.lat;
+            gpsMain.originCoords.lng = gpsMain.currentCoords.lng;
         }
-        // console.log (dist)
-        /** update rotation desdpues de calibrar */
-        // gpsMain.pivote.rotation.set(0,(gpsMain.difCamara_difHeading)* Math.PI/180,0)
     },
     updateRotarionCamera(matrix)
     {
@@ -124,12 +119,9 @@ let gpsMain=
     {
         for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
         {
-            //gpsMain.polygonsTxt[i].lookAt(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.y,gpsMain.pose.transform.position.z)
                  
             // get the position of the center of the cube
-            let tempV = new THREE.Vector3;
-            // let distance = tempV.distanceTo(new THREE.Vector3(gpsMain.pose.transform.position.x,gpsMain.pose.transform.position.z,gpsMain.pose.transform.position.y));
-            
+            let tempV = new THREE.Vector3;            
 
             gpsMain.polygonsTxt[i].center.updateWorldMatrix(true, false);
             gpsMain.polygonsTxt[i].center.getWorldPosition(tempV);
@@ -157,9 +149,15 @@ let gpsMain=
                 //elem.style.transform = `translate(-50%, -50%)`
                 elem.style.left = x +"px"
                 elem.style.top = y+"px"
-                elem.style.display = '';
                 
-                
+                if (elem.style.display == 'none')
+                {
+                    elem.style.opacity =0
+                    console.log ("prender")
+                    gpsMain.delay(550).then( ()=>elem.style.opacity =1)
+
+                }
+               elem.style.display = ''
                 /** Btn close Button*/
                 let btn= elem.querySelector('#closeButton');
                 let top = y - btn.offsetTop;
@@ -212,9 +210,7 @@ let gpsMain=
     {
         mesh.openInfo = true;
         gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
-        // let anim = gsap.fromTo(mesh.elem,{css:{transform: "scale(0)"}}, {css:{transform: "scale(1)"},  duration: 2});     
-        // anim.play()
-        // console.log (mesh.elem)
+        mesh.elem.style.display = 'none';
     },
     angulo180(x)
     {
@@ -309,29 +305,8 @@ let gpsMain=
         // gpsMain.pivote.add( cube );
     },
 
-    normalizeAngle0_360(angle){
-        if (angle<0)
-        {
-            while(angle<0)
-            {
-                angle+= 360
-            }
-        }else if (angle>= 360)
-        {
-            while (angle>=360)
-            {
-                angle-= 360;
-            }
-        }
-        return angle;
-    },
-    setPivote(floor)  // ya no se ocupa
-    {
-        gpsMain.pivote.position.set(gpsMain.pivote.position.x,floor,gpsMain.pivote.position.z);
-    },
     setCrearPolygons()
     {
-        // gpsMain.setPivote(this.floor)
         gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
         document.body.classList.add('stabilized');
         // this.reticle.visible = false;
@@ -387,6 +362,7 @@ let gpsMain=
                     gpsMain.dataAPI = {data,_position};
                     if (typeof callBack=== 'function') callBack();
                     gpsMain.setCrearPolygons()
+                    gpsMain.checkCalibrado = true;
                 })
         })
    },
@@ -401,7 +377,7 @@ let gpsMain=
             {
             //let polygons = JSON.parse( data.result)
             //console.log(data.result.length)
-
+            document.querySelector('#txtMessage').parentElement.style.display= 'none'
             let polygon =data.result
             let idPolygons_tem = [];
                 for(let i = 0; i<polygon.length;i++)
@@ -419,6 +395,9 @@ let gpsMain=
                 let msg = document.querySelector('#txtMessage');
                 msg.innerHTML= data.result;
                 msg.parentElement.style.display= 'block'
+                /**delete poligons */
+                gpsMain.checkPolygons([],_position)
+
             }
         }else
         {
@@ -463,15 +442,21 @@ let gpsMain=
    },
    deleteGroups(ids)
    {
+       console.log ("delete")
+       console.log (ids)
        let mesh
         for (let i = 0 ; i<ids.length;i++)
         {
             gpsMain.groupIDPoygons = gpsMain.groupIDPoygons.filter(g => g.id!= ids[i].id)
             mesh = this.pivotePoligono.children.filter(m=>ids[i].id==m.groupID)
+            mesh.forEach(element => {
+                    gpsMain.pivotePoligono.remove(element)
+                });
         }
-        mesh.forEach(element => {
-            gpsMain.pivotePoligono.remove(element)
-        });
+        // console.log (mesh)
+        // mesh.forEach(element => {
+        //     gpsMain.pivotePoligono.remove(element)
+        // });
    },
    addGroups(ids,_position)
    {
@@ -595,7 +580,8 @@ let gpsMain=
             // mesh.iconInfoP.children[0].position.copy ( mesh.iconInfoP.originPos)
             mesh.iconInfoP.children[0].scale.set (1,1,1)
             mesh.iconInfoP.children[0].position.set (0,0,0)
-            mesh.iconInfoP.children[0].visible = true 
+            gpsMain.delay(600).then(()=>mesh.iconInfoP.children[0].visible = true )
+            
         }
         //elem.setAttribute('href',_url)
         const btnUrl = document.createElement('button');
@@ -796,6 +782,28 @@ let gpsMain=
         }
 
         return eventName
-    },   
+    },
+    delay: function(time)
+    {
+        return new Promise (resolve=>setTimeout(resolve,time))
+    },
+    
+    normalizeAngle0_360(angle){
+        if (angle<0)
+        {
+            while(angle<0)
+            {
+                angle+= 360
+            }
+        }else if (angle>= 360)
+        {
+            while (angle>=360)
+            {
+                angle-= 360;
+            }
+        }
+        return angle;
+    },
+       
    
 }
