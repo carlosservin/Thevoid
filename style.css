@@ -142,14 +142,14 @@ body {
   display: none;
 
 }
-#coordsAccuracy {
+/* #coordsAccuracy {
   position: absolute;
   bottom: 15px;
   text-align: center;
   font-size: 10px;
   background-color:rgb(232, 242, 251);
   display:none
-}
+} */
 
 
 div {

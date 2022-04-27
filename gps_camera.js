@@ -31,7 +31,7 @@ let gpsMain=
 
         _onDeviceOrientation : "",
         heading : "",
-        coords_accuracy:"",
+        // coords_accuracy:"",
 
     SetCameraGps: function ()
     {
@@ -40,9 +40,9 @@ let gpsMain=
             {
                 gpsMain.originCoords.lat = position.coords.latitude;
                 gpsMain.originCoords.lng = position.coords.longitude;
-                gpsMain.coords_accuracy = document.getElementById("coordsAccuracy")
-                gpsMain.coords_accuracy.innerHTML ="The accuracy of position: "+ (Math.round( position.coords.accuracy *  1.094)) +" yard"
-                gpsMain.coords_accuracy.style.display = "block"
+                // gpsMain.coords_accuracy = document.getElementById("coordsAccuracy")
+                // gpsMain.coords_accuracy.innerHTML ="The accuracy of position: "+ (Math.round( position.coords.accuracy *  1.094)) +" yard"
+                // gpsMain.coords_accuracy.style.display = "block"
                 
             });
             navigator.geolocation.watchPosition((position)=>
@@ -53,7 +53,7 @@ let gpsMain=
                 if (gpsMain.checkCalibrado)
                 {
                     gpsMain.updatePosition();
-                    gpsMain.coords_accuracy.innerHTML ="The accuracy of position: "+ (Math.round( position.coords.accuracy *  1.094)) +" yard"
+                    // gpsMain.coords_accuracy.innerHTML ="The accuracy of position: "+ (Math.round( position.coords.accuracy *  1.094)) +" yard"
                 }
 
             })
