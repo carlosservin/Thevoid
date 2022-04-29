@@ -11,15 +11,7 @@ body {
   top : 0px;
   left:0px
 }
-#calibrating {
-  position: absolute;
-  top: 90%;
-  width: 100%;
-  text-align: center;
-  font-size: 18px;
-  background-color:rgb(232, 242, 251);
-  display:none
-}
+
 #labels {
   position: absolute;  /* let us position ourself inside the container */
   z-index: 0;          /* make a new stacking context so children don't sort with rest of page */
@@ -33,25 +25,13 @@ body {
   position: absolute;  /* let us position them inside the container */
   left: 0;             /* make their default position the top left of the container */
   top: 0;
-  /* cursor: pointer;     change the cursor to a hand when over us */
   font-size: large;
   user-select: none;   /* don't let the text get selected */
-  /* text-shadow:         /* create a black outline 
-  -1px -1px 0 rgb(255, 255, 255),
-  0   -1px 0 rgb(255, 255, 255),
-  1px -1px 0 rgb(255, 255, 255),
-  1px  0   0 rgb(255, 255, 255),
-  1px  1px 0 rgb(255, 255, 255),
-  0    1px 0 rgb(255, 255, 255),
-  -1px  1px 0 rgb(255, 255, 255),
-  -1px  0   0 rgb(255, 255, 255); */
   background-color:rgba(255, 255, 255, 0.85);
   border-radius: 10px;
   border: 10px solid rgba(255, 255, 255, 0);
 }
-/* #labels>div:hover {
-  color: red;
-} */
+
 .button {
   background-color: rgba(255, 255, 255, 0.9);
   border: none;
@@ -81,6 +61,7 @@ body {
   background-color: rgba(255, 255, 255, 0.0);
 
 }
+/* no move */
 .buttonUrl
 {
   background-color: #4482c3; /* blue */
@@ -113,7 +94,7 @@ body {
   margin-right: 15px;
   z-index: 11;
 }
-#mira
+#crosshairs
 {
   position: absolute;
   top: 50%;
@@ -142,15 +123,6 @@ body {
   display: none;
 
 }
-/* #coordsAccuracy {
-  position: absolute;
-  bottom: 15px;
-  text-align: center;
-  font-size: 10px;
-  background-color:rgb(232, 242, 251);
-  display:none
-} */
-
 
 div {
   /* font-family: "Lilita one" !important; */

@@ -1,22 +1,15 @@
 let gpsMain= 
 {   
-    camera :"",
     screenSize:"",
     halfScreenSize:"",
-    canvas:"",
-    halfCanvas:"",
     touch:false,
     polygonsTxt:[],
     iconInfoP:[],
     groupIDPoygons:[],
-    font:"",
     dataAPI:"",
-    cubeRF : "",
     pivote :"",
     pivotePoligono:"",
-    pivoteCamera:"", 
-    checkCalibrado :false,
-    poligonosCreados : false,
+    createdPolygons :false,
     difCamara_difHeading :0,
     originCoords :
         {
@@ -28,106 +21,113 @@ let gpsMain=
             lat:0,
             lng: 0
         },
-
-        _onDeviceOrientation : "",
         heading : "",
         // coords_accuracy:"",
-
-    SetCameraGps: function ()
+/**
+ * set gps variables
+ * position update
+ */
+    SetGps: function ()
     {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function (position)
             {
                 gpsMain.originCoords.lat = position.coords.latitude;
-                gpsMain.originCoords.lng = position.coords.longitude;
-                // gpsMain.coords_accuracy = document.getElementById("coordsAccuracy")
-                // gpsMain.coords_accuracy.innerHTML ="The accuracy of position: "+ (Math.round( position.coords.accuracy *  1.094)) +" yard"
-                // gpsMain.coords_accuracy.style.display = "block"
-                
+                gpsMain.originCoords.lng = position.coords.longitude;               
             });
             navigator.geolocation.watchPosition((position)=>
             {
                 gpsMain.currentCoords.lat = position.coords.latitude;
                 gpsMain.currentCoords.lng = position.coords.longitude;
-                // console.log("lat  "+position.coords.latitude + "  lgn  "+position.coords.longitude)
-                if (gpsMain.checkCalibrado)
+                /**Update */
+                if (gpsMain.createdPolygons)
                 {
-                    gpsMain.updatePosition();
-                    // gpsMain.coords_accuracy.innerHTML ="The accuracy of position: "+ (Math.round( position.coords.accuracy *  1.094)) +" yard"
+                    gpsMain.positionUpdate();
                 }
 
             })
         } else {
             x.innerHTML = "Geolocation is not supported by this browser.";
         }
-        var eventName = this._getDeviceOrientationEventName();
-        gpsMain._onDeviceOrientation = gpsMain._onDeviceOrientation.bind(this);
+        // var eventName = this._getDeviceOrientationEventName();
+        // gpsMain._onDeviceOrientation = gpsMain._onDeviceOrientation.bind(this);
+        // window.addEventListener(eventName, gpsMain._onDeviceOrientation, false);
+
+        var eventName = gpsMain._getDeviceOrientationEventName();
+        gpsMain._onDeviceOrientation = gpsMain._onDeviceOrientation.bind(gpsMain);
         window.addEventListener(eventName, gpsMain._onDeviceOrientation, false);
+
     },
 
-
-    updatePosition()
+/**
+ * update parent position of polygons
+ */
+    positionUpdate()
     {
         let coord =gpsMain.coordinateToVirtualSpace(gpsMain.originCoords,gpsMain.currentCoords)
-        // console.log(coord)
-
         gpsMain.pivotePoligono.position.x =  coord.x;
         gpsMain.pivotePoligono.position.z =  coord.y;
+
+        /**get distance from original position to current position */
         let dist = gpsMain.computeDistanceMeters(gpsMain.originCoords, gpsMain.currentCoords)
-        // document.getElementById("Test").innerHTML = dist
         if (dist>= 100) //100meters
         {
-            gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng},()=>{gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)})
-            //resert origin coords
+            gpsMain.getGroupsPolygonsAPI({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng},()=>{gpsMain.createPolygons(gpsMain.dataAPI.coord,gpsMain.dataAPI.data)})
+            //resert origin coordinates
             gpsMain.originCoords.lat = gpsMain.currentCoords.lat;
             gpsMain.originCoords.lng = gpsMain.currentCoords.lng;
         }
     },
-    updateRotarionCamera(matrix)
+    /**
+     * 
+     * @param {matrix} matrix 
+     */
+    updateCameraRotation(matrix)
     {
-        // console.log (matrix)
+        /**decompose matrix, in position, rotation and scale */
         const m = new THREE.Matrix4().fromArray(matrix)
         let mPosition = new THREE.Vector3();
         let mQuaternion= new THREE.Quaternion();
         let mScale= new THREE.Vector3();
         m.decompose(mPosition,mQuaternion,mScale)
-        // console.log (mQuaternion)      
+
+        /**get the rotation on the Y axis */
         let poseY =gpsMain.toAngle(gpsMain.angleMagnitude(mQuaternion).y)
         poseY = Math.round( gpsMain.normalizeAngle0_360(poseY+180))
-        // console.log (poseY)
 
-        
-        let difHeading = Math.round(gpsMain.angulo180(gpsMain.heading))
+        /**calculate compass degree */
+        let difHeading = Math.round(gpsMain.angle180(gpsMain.heading))
+        /**calculate compass difference and camera rotation */
         let dif = Math.round(poseY +difHeading)
+        /**decrease the effect of shaky */
         if (Math.abs(dif-gpsMain.difCamara_difHeading)>7 )
         {
-            // console.log ("actualizar")
             gpsMain.difCamara_difHeading = dif
             gpsMain.pivote.rotation.set(0,(dif)* Math.PI/180,0)
-            gpsMain.pivote.position.set(mPosition.x,-1.5,mPosition.z)  
-
-            let pos = gpsMain.pivote.worldToLocal(new THREE.Vector3(mPosition.x,gpsMain.pivote.position.y,mPosition.z))
-            
-            gpsMain.pivoteCamera.position.copy(pos);
+            gpsMain.pivote.position.set(mPosition.x,-1.5,mPosition.z)              
         }     
-        // document.getElementById("Test").innerHTML = gpsMain.heading
-        // document.getElementById("Test2").innerHTML = poseY
-        // document.getElementById("Test3").innerHTML = gpsMain.angulo180(dif)
     },
-
+    /**
+     * update html elements that are open and detect the click with the crosshairs
+     * @param {Matrix} matrixWorldInverse 
+     * @param {Matrix} projectionMatrix 
+     * @param {pose} pose 
+     */
     updatePolygonsTxt(matrixWorldInverse,projectionMatrix,pose)
     {
+        /**update html elements that are open */
         for(let i = 0; i<gpsMain.polygonsTxt.length; i++)
         {
-                 
-            // get the position of the center of the cube
-            let tempV = new THREE.Vector3;            
-
+            //get the center of the polygon     
+            let tempV = new THREE.Vector3;          
             gpsMain.polygonsTxt[i].center.updateWorldMatrix(true, false);
             gpsMain.polygonsTxt[i].center.getWorldPosition(tempV);
-            let distancia = tempV.distanceTo(new THREE.Vector3(pose.transform.position.x,pose.transform.position.y,pose.transform.position.z)) 
-            //altura del ele html
-            tempV.y =+ ((distancia/100)*10)+2
+
+            /**calculate the distance from the center to the camera */
+            let distance = tempV.distanceTo(new THREE.Vector3(pose.transform.position.x,pose.transform.position.y,pose.transform.position.z)) 
+
+            /**set height relative to distance */
+            tempV.y =+ ((distance/100)*10)+2
 
             // get the normalized screen coordinate of that position
             // x and y will be in the -1 to +1 range with x = -1 being
@@ -143,22 +143,18 @@ let gpsMain=
                 // convert the normalized position to CSS coordinates
                 const x = ((tempV.x *  .5 + .5) * gpsMain.screenSize.width)- (elem.offsetWidth/2);
                 const y = ((tempV.y * -.5 + .5) * gpsMain.screenSize.height)- (elem.offsetHeight/2);
-               
-                // elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
-                // elem.style.transform = ` translate(${x}px,${y}px)`;
-                //elem.style.transform = `translate(-50%, -50%)`
                 elem.style.left = x +"px"
                 elem.style.top = y+"px"
-                
+                /**delay to display the item */
                 if (elem.style.display == 'none')
                 {
                     elem.style.opacity =0
-                    console.log ("prender")
                     gpsMain.delay(550).then( ()=>elem.style.opacity =1)
 
                 }
                elem.style.display = ''
                 /** Btn close Button*/
+                /**calculate the position of the button div */
                 let btn= elem.querySelector('#closeButton');
                 let top = y - btn.offsetTop;
                 let left = x + btn.offsetLeft;                
@@ -166,7 +162,7 @@ let gpsMain=
                 {
                     if (left< gpsMain.halfScreenSize.width-5&& left> gpsMain.halfScreenSize.width-35 )
                     {
-                        // console.log (left)
+                        /**if crosshair is inside button area and clicked, activate function */
                         if(gpsMain.touch)
                         {
                             btn.onclick()
@@ -174,6 +170,7 @@ let gpsMain=
                     }
                 }
                 /**btn url */
+                /**calculate the position of the button div */
                 btn= elem.querySelector('#btnUrl');
                 top = y + btn.offsetTop;
                 left = x + btn.offsetLeft+5; 
@@ -184,6 +181,7 @@ let gpsMain=
                     {
                         if(gpsMain.touch)
                         {
+                            /**if crosshair is inside button area and clicked, activate function */
                             btn.onclick()
                         }
                     }
@@ -192,225 +190,164 @@ let gpsMain=
             }
         }
     },
-    updateIconInfo(pose)
+    /**
+     * update buttons to show polygon information
+     * @param {Pose} pose 
+     */
+    updateInfoIcon(pose)
     {
         gpsMain.iconInfoP.forEach(element => {
+            /**set the info button to look at the virtual camera*/
             element.lookAt(pose.transform.position.x,pose.transform.position.y,pose.transform.position.z)
+            /**calculate the distance from the button to the camera */
             let distance = new THREE.Vector3;
             element.getWorldPosition(distance);
             distance = distance.distanceTo(new THREE.Vector3(pose.transform.position.x,pose.transform.position.y,pose.transform.position.z));
+            /**scale the button relative to the distance */
             let scale = ((distance/100)*2)+1;
              element.parent.scale.set(scale,scale,scale)
+             /**set button height relative to distance */
              element.parent.position.z = -((distance/100)*5)-2
-        });
-        
-
+        });      
     },
+    /**
+     * open information
+     * @param {Object3D} mesh 
+     */
     openElemen(mesh)
     {
+        /**open information (html) */
         mesh.openInfo = true;
+        /**add the div to the array to calculate its position on update */
         gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
         mesh.elem.style.display = 'none';
     },
-    angulo180(x)
-    {
-        if (x<180)
-        {
-            return x
-        }else
-        {
-            return x-360
-        }
-    },
-    /**
-     * Axis with angle magnitude (radians) [x, y, z]
-     * @param {q} quaternion 
-     * @returns vector 3
-     */
-    angleMagnitude:function(quaternion)
-    {
-        let q = quaternion.clone();
-        let angle = 2 * Math.acos(quaternion.w);
-        var axis = [0, 0, 0];
-        if (1 - (q.w * q.w) < 0.000001)
-        {
-            axis[0] = q.x;
-            axis[1] = q.y;
-            axis[2] = q.z;
-        }
-        else
-        {
-            // http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
-            var s = Math.sqrt(1 - (q.w * q.w));
-            axis[0] = q.x / s;
-            axis[1] = q.y / s;
-            axis[2] = q.z / s;
-        }
-        return new THREE.Vector3(axis[0]*angle,axis[1]*angle,axis[2]*angle)
-    },
-    /**
-     * 
-     * @param {radians} x 
-     * @returns Angle
-     */
-    toAngle: function(x)
-    {
-        return x * 180 / Math.PI;
-    },
-    
-    crearcuboReferencia(scene)
+
+    /** create reference 3d objects */
+    createReference3DObjects(scene)
     {
         /**
          * plane Compass
          */
-         const geometry = new THREE.PlaneGeometry( .2, .2 );
+         const geometry = new THREE.PlaneGeometry( .4, .4 );
          const texture =new THREE.TextureLoader().load( 'Texture/north.png' );
          const material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide, map:texture, transparent:true} );
          const plane = new THREE.Mesh( geometry, material );
          plane.position.set(00,-1,0)
          plane.rotation.set(1.5708,1.5708*2,0);
-         
-        
-        //  const geometryB = new THREE.BoxGeometry( 1, 1, 1 );
-        //  const materialB = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-        //  const cube = new THREE.Mesh( geometryB, materialB );
-         
-        // cube. position.set(0,0,2);
-        //cube.visible = false;
-        // scene.add(cube)
-        // console.log (cube)
-        const referencia = new THREE.Object3D();
-        //referencia.add(plane)
-        gpsMain.cubeRF = referencia;
-        scene.add(referencia)
+
         gpsMain.pivote = new THREE.Object3D();
         gpsMain.pivote.add(plane)
         scene.add(gpsMain.pivote);
-        //gpsMain.pivote.materials[0].color = 0xffffff
-        //Test
+        
         gpsMain.pivotePoligono = new THREE.Object3D();
         gpsMain.pivote.add(gpsMain.pivotePoligono);
         gpsMain.pivotePoligono.position.set(0,0,0)
-
-        gpsMain.pivoteCamera = new THREE.Object3D();
-        let p = plane.clone();
-        p.position.y = -1.1;
-        p.visible = false
-        gpsMain.pivoteCamera.add(p);
-        gpsMain.pivote.add(gpsMain.pivoteCamera)
-
-        // let c = gpsMain.createcubeTest();
-        // gpsMain.pivote.add(c);
-        // c.position.set(2,0,0)
-        // gpsMain.pivote.add( cube );
     },
 
-    setCrearPolygons()
-    {
-        gpsMain.createPolygonsAPI(gpsMain.dataAPI._position,gpsMain.dataAPI.data)
-        document.body.classList.add('stabilized');
-        // this.reticle.visible = false;
-        // document.querySelector('#calibrating').style.display = 'none';
-        document.querySelector('#mira').style.display= 'block'
 
-        //canvas
-        // gpsMain.canvas =document.getElementById("container");  //this.canvas;
-        // gpsMain.halfCanvas ={width: gpsMain.canvas.clientWidth/2, height:gpsMain.canvas.clientHeight/2}
-        // console.log (gpsMain.canvas.clientHeight)
-        gpsMain.screenSize = {width: window.innerWidth, height:window.innerHeight}
-        gpsMain.halfScreenSize= {width: window.innerWidth/2, height:window.innerHeight/2}
-    },
-
+    /** load polygons from the api*/
     _loadVertexPolygon:function()
-    {
-        // console.log("pedir data")
-        
-        // gpsMain._getVertexPolygon({"lat":27.4866521,"lng":-82.4035506})
-        //  gpsMain._getVertexPolygon({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
-       gpsMain._getVertexPolygon({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
-    // gpsMain._getVertexPolygon({"lat":27.546,"lng":-82.58481})
+    {       
+        // gpsMain.getGroupsPolygonsAPI({"lat":27.4866521,"lng":-82.4035506})
+        //  gpsMain.getGroupsPolygonsAPI({"lat":27.486832,"lng":-82.403862}) // cerca de un poligono
+        // gpsMain.getGroupsPolygonsAPI({"lat":27.546,"lng":-82.58481})
+       gpsMain.getGroupsPolygonsAPI({"lat":gpsMain.currentCoords.lat,"lng":gpsMain.currentCoords.lng})
+
     },
     
-    /*
-       get
+
+   /**
+    * get data
+    * @param {json} coord 
+    * @param {funcion} callBack 
     */
-   _getVertexPolygon:function(_position,callBack)
+   getGroupsPolygonsAPI:function(coord,callBack)
    {
-    //    gpsMain.originCoords.lat =_position.lat;
-    //    gpsMain.originCoords.lng = _position.lng;
+
         const params = 
         {
             key : '8542e207809d040319d4ba71dd4fec9f93fa83ce524d93d27e0738bf8807d130',
             for : 'sumeru',
-            lat : _position.lat,
-            lng: _position.lng,
-            dist_miles: '.5',//400 metros
+            lat : coord.lat,
+            lng: coord.lng,
+            dist_miles: '.5',//800 metros
             url:'https://community.saltstrong.com/api/get_polygons.php?'
         };
-
-
-        // const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}`;
         const url = `${params.url}&key=${params.key}&for=${params.for}&lat=${params.lat}&lng=${params.lng}&dist_miles=${params.dist_miles}`;
-        console.log(url)
         fetch(url)
         .then(res=>{
-            console.log(res)
             res.json()
             .then(data=>
                 {
-                    console.log (data)
-                    gpsMain.dataAPI = {data,_position};
+                    gpsMain.dataAPI = {data,coord};
                     if (typeof callBack=== 'function') callBack();
-                    gpsMain.setCrearPolygons()
-                    gpsMain.checkCalibrado = true;
+                    gpsMain.setPolygonsCreations()
+                    gpsMain.createdPolygons = true;
                 })
         })
    },
-   createPolygonsAPI(_position,data)
+   /**
+    * set polygon creation 
+    * set canvas values
+    */
+   setPolygonsCreations()
    {
-        // console.log(data.result)
-        if (data.status !="error")
-        {
+       gpsMain.createPolygons(gpsMain.dataAPI.coord,gpsMain.dataAPI.data)
+       document.body.classList.add('stabilized');
 
-        
+       document.querySelector('#crosshairs').style.display= 'block'
+
+       gpsMain.screenSize = {width: window.innerWidth, height:window.innerHeight}
+       gpsMain.halfScreenSize= {width: window.innerWidth/2, height:window.innerHeight/2}
+   },
+   /**
+    * create polygons
+    * @param {json} coord 
+    * @param {json} data 
+    */
+   createPolygons(coord,data)
+   {
+        if (data.status !="error")
+        {        
             if (data.result != "No record found")
             {
-            //let polygons = JSON.parse( data.result)
-            //console.log(data.result.length)
             document.querySelector('#txtMessage').parentElement.style.display= 'none'
             let polygon =data.result
             let idPolygons_tem = [];
                 for(let i = 0; i<polygon.length;i++)
-                // for(let i = 0; i<1;i++)
                 {
                     if (polygon[i].distance<= 0.5) // 800 meters
                     {
                         idPolygons_tem.push(polygon[i]) 
-                        // console.log (polygon[i])  
                     }                             
                 }
-                gpsMain.checkPolygons(idPolygons_tem, _position)
+                gpsMain.checkPolygons(idPolygons_tem, coord)
             }else
             {
+                /*show message label*/
                 let msg = document.querySelector('#txtMessage');
                 msg.innerHTML= data.result;
                 msg.parentElement.style.display= 'block'
                 /**delete poligons */
-                gpsMain.checkPolygons([],_position)
+                gpsMain.checkPolygons([],coord)
 
             }
         }else
         {
+            /**show message label */
             let msg = document.querySelector('#txtMessage');
             msg.innerHTML= data.message;
             msg.parentElement.style.display= 'block'
         }
    },
-
-   checkPolygons(newIDPolygons,_position)
+   /**
+    * 
+    * @param {Array} newIDPolygons 
+    * @param {json} coord {lat:a, lng:b}
+    */
+   checkPolygons(newIDPolygons,coord)
    {
-    //    console.log("----")
-    //    console.log (newIDPolygons)
        let _newPoygonsTemp = newIDPolygons;
        let _deletePolygonsTemp= [];
        if(gpsMain.groupIDPoygons.length!= 0)
@@ -420,30 +357,30 @@ let gpsMain=
                     let _temp=newIDPolygons.filter(_newID=> _newID.id == id)
                     if (_temp.length== 0)
                     {
-                        // console.log ("eliminar del grupo al: " + id)
+                        /**delete group with id */
                         _deletePolygonsTemp.push(id)                        
                     }else
                     {
-                        // console.log ("ya existe"+ id)
+                        /**check new groups */
                         _newPoygonsTemp = _newPoygonsTemp.filter(_id => _id.id != id);
                     }
                 })
             gpsMain.deleteGroups(_deletePolygonsTemp)
-            gpsMain.addGroups(_newPoygonsTemp,_position);
-            // console.log (gpsMain.groupIDPoygons)
+            gpsMain.addGroups(_newPoygonsTemp,coord);
        }
        else
        {
-           // todos los poligonos a crear
-           gpsMain.addGroups(newIDPolygons,_position)
-        //    console.log (gpsMain.groupIDPoygons)
+           /**create all polygon groups */
+           gpsMain.addGroups(newIDPolygons,coord)
        }
 
    },
+   /**
+    * remove polygons from group
+    * @param {Array} ids grupos 
+    */
    deleteGroups(ids)
    {
-       console.log ("delete")
-       console.log (ids)
        let mesh
         for (let i = 0 ; i<ids.length;i++)
         {
@@ -453,78 +390,77 @@ let gpsMain=
                     gpsMain.pivotePoligono.remove(element)
                 });
         }
-        // console.log (mesh)
-        // mesh.forEach(element => {
-        //     gpsMain.pivotePoligono.remove(element)
-        // });
    },
-   addGroups(ids,_position)
+   /**
+    * add the group polygons
+    * @param {Array} ids 
+    * @param {json} coord 
+    */
+   addGroups(ids,coord)
    {
-       console.log ("agregar")
-    console.log (ids)
         for (let i = 0 ; i<ids.length;i++)
         {
             gpsMain.groupIDPoygons.push(ids[i])
-            console.log (ids[i])
-            let grupo = JSON.parse(ids[i].PolygonCoords);
-            for (let j = 0; j<grupo.length; j++)
-            // for (let j = 0; j<1; j++)
+            let group = JSON.parse(ids[i].PolygonCoords);
+            for (let j = 0; j<group.length; j++)
             {
-                gpsMain.createPolygon(_position,grupo[j],ids[i].color,ids[i].html,ids[i].url,ids[i].Name,ids[i].id)
-                //console.log (grupo[j]);
-
+                gpsMain.createPolygon(coord,group[j],ids[i].color,ids[i].html,ids[i].url,ids[i].Name,ids[i].id)
             }
         }
    },
-   createcubeTest()                                             //borrar
-   {
-        const geometryc = new THREE.BoxGeometry( 1, 1, 1 );
-        const materialc = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
-        const cube = new THREE.Mesh( geometryc, materialc );
-        return cube;
-   },
-
-   /**
+    /**
      * 
-     * @param {Array[json]} dstcoordinates 
+     * @param {json} originCoords 
+     * @param {Array} group 
+     * @param {Hex} color 
+     * @param {string} _html 
+     * @param {string} _url 
+     * @param {string} name 
+     * @param {int} groupID 
      */
-    createPolygon(originCoords,dstcoordinates, color,_html,_url,name,groupID)
+    createPolygon(originCoords,group, color,_html,_url,name,groupID)
     {
-        //console.log(dstcoordinates);
        const areaPts = [];
-       for (let i = 0;i<dstcoordinates.length; i++)
+       for (let i = 0;i<group.length; i++)
         {
-           areaPts.push(gpsMain.coordinateToVirtualSpace(originCoords,dstcoordinates[i]));
+           areaPts.push(gpsMain.coordinateToVirtualSpace(originCoords,group[i]));
         };
+        /**build shape */
         const areaShape =new THREE.Shape( areaPts );
-        let centerP = gpsMain.centerPolygon(areaPts);
-        // gpsMain.addShape(areaShape,color,gpsMain.pivote,centerP,_html,_url,name ); 
+        let centerP = gpsMain.getCenterPolygon(areaPts);
         gpsMain.addShape(areaShape,color,gpsMain.pivotePoligono,centerP,_html,_url,name,groupID ); 
     },       
- 
+    /**
+     * 
+     * @param {THREE.Shape} shape 
+     * @param {Hex} color 
+     * @param {THREE.Object3D} parent 
+     * @param {Vector3} _center 
+     * @param {string} _html 
+     * @param {string} _url 
+     * @param {string} name 
+     * @param {int} groupID 
+     */
     addShape:function(shape,color,parent,_center,_html,_url,name,groupID)
-    {
-        // // extruded shape
-        // const extrudeSettings = { depth: .1, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 1, bevelThickness: 1 };
-        // let geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-        
+    {        
         // flat shape
         let geometry = new THREE.ShapeGeometry( shape );
-
         let mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide, transparent:true, opacity:.45 } ) );
         let center = new THREE.Object3D();
         mesh.add(center) // children [0]
-        //var raycast
+
+        /**create  label (html)*/
         let elem = gpsMain.createLabel(_html,_url, name, mesh);
-        elem.style.display = "none"
+        /** add reference label to mesh*/
         mesh.elem = elem;
+        /**reference variables */
         mesh.isPolygon = true;
         mesh.openInfo = false;
         mesh.groupID = groupID;
-        //        
+
         center.position.copy (_center);
 
-
+        /**set Polygon */
         mesh.position.set( 0, 0, 0 );
         mesh.rotation.set(1.5708,0,0);
         parent.add(mesh)     
@@ -535,22 +471,26 @@ let gpsMain=
         const geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
 
         let line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color,linewidth:20 } ) );
-	    mesh.add( line );  
-        // plane icon info
+	    mesh.add( line );
+
+        /**set polygon info button */
         let info = gpsMain.createIconInfo();
         mesh.add(info)
         mesh.iconInfoP = info
-        info.position.copy(_center)
         
+        info.position.copy(_center)        
         info.position.z -= 2.5
-        info.originPos =  _center;
-        info.originPos.z -=2.5
         info.rotation.set(-1.5708,0,0);
-        gpsMain.iconInfoP.push( info.children[0])//children[0] => plane geometry
 
-        console.log (info)
+        /**  add the info btn to the array for use in the raycast*/
+        gpsMain.iconInfoP.push( info.children[0])//children[0] => plane geometry
     },
-    centerPolygon(points)
+    /**
+     * 
+     * @param {Vector2[]} points 
+     * @returns {Vector3} CenterPolygon
+     */
+    getCenterPolygon(points)
     {
         let x=0,y=0;
         for(let i = 0; i<points.length; i++)
@@ -558,62 +498,70 @@ let gpsMain=
             x+= points[i].x;
             y+= points[i].y; 
         }
+        /**average */
         x = x/points.length;
         y = y/points.length;
         return new THREE.Vector3(x,y,0);
     },
+    /**
+     * create label that is displayed when the polygon information button is clicked
+     * @param {string} txthtml 
+     * @param {string} _url 
+     * @param {string} name 
+     * @param {object} mesh 
+     * @returns htmlElement
+     */
     createLabel:function(txthtml,_url,name,mesh)
     {
+        /**set label */
         const labelContainerElem = document.querySelector('#labels');
         const elem = document.createElement('div');
         const closeElem = document.createElement('button');
         closeElem.setAttribute("class", "button buttonCloseLabel")
         closeElem.setAttribute("id", "closeButton")
 
-        //close label
+        /**set variables when element is closed */
         closeElem.onclick = function()
         {
-            //gpsMain.polygonsTxt.push({center:mesh.children[0],elem:mesh.elem})
-            console.log ("cerrar")
-            console.log (mesh.iconInfoP.children[0])
+            /**remove the element from the array of polygons Txt so that its position is not calculated */
             gpsMain.polygonsTxt = gpsMain.polygonsTxt.filter(_mesh=> _mesh.center.uuid !=mesh.children[0].uuid)
             elem.style.display = "none"
             mesh.openInfo = false;
-            // mesh.iconInfoP.children[0].position.copy ( mesh.iconInfoP.originPos)
             mesh.iconInfoP.children[0].scale.set (1,1,1)
             mesh.iconInfoP.children[0].position.set (0,0,0)
+            /**delay to not show htmj element move effect */
             gpsMain.delay(600).then(()=>mesh.iconInfoP.children[0].visible = true )
             
         }
-        //elem.setAttribute('href',_url)
+        /**set polygon url button */
         const btnUrl = document.createElement('button');
         btnUrl.setAttribute("class", "button buttonUrl")
         btnUrl.setAttribute("id", "btnUrl");
         btnUrl.innerHTML = name;
         btnUrl.onclick = function()
         {
-            // console.log ("abrir url")
             window.location.href = _url
         }
-        /** txt html */
+
+        /** set polygon text */
         const txtHtml = document.createElement('div');
         txtHtml.innerHTML = txthtml
-        // elem.innerHTML = '<a href="'+_url+'">'+'<p>'+name+"<\/p></a>"+txthtml ;
-        // console.log (elem)
-        //console.log ('<a href="'+_url+'>'+"<p>"+name+"<\/p> "+txthtml +"</a>")        
+
+        
         labelContainerElem.appendChild(elem);
         elem.appendChild(closeElem);
         elem.appendChild(btnUrl)
         elem.appendChild(txtHtml)
-
+        elem.style.display = "none"
         return elem;
     },
     /**
-     * 
+     * Plane like button
      * @returns  plane
      */
     createIconInfo()
     {
+        /**hierarchy=> Object3D.children(PlaneGeometry) */
         const parent =  new THREE.Object3D()
         const geometry = new THREE.PlaneGeometry( 1.5, 1.5 );
          const texture =new THREE.TextureLoader().load( 'Texture/information.png' );
@@ -641,8 +589,6 @@ let gpsMain=
         //x = lng
         x = gpsMain.computeDistanceMeters({lng:originCoords.lng, lat:0}, {lng:dstCoords.lng,lat:0})
         x *= originCoords.lng>dstCoords.lng ? 1:-1;
-        //console.log("Distance:"+gpsMain.computeDistanceMeters(originCoords,dstCoords) )
-
         return new THREE.Vector2(x,z)
         
     },
@@ -761,7 +707,6 @@ let gpsMain=
             if (event.absolute === true || event.absolute === undefined) {
                 gpsMain.heading = gpsMain._computeCompassHeading(event.alpha, event.beta, event.gamma);
                 // console.log("heading " +gpsMain.heading)
-                // document.getElementById("Test").innerHTML = gpsMain.heading;
             } else {
                 console.warn('event.absolute === false');
             }
@@ -805,6 +750,56 @@ let gpsMain=
             }
         }
         return angle;
+    },
+    /**
+     * 
+     * @param {float} x 
+     * @returns  float angle -180 to 180
+     */
+     angle180(x)
+    {
+        if (x<180)
+        {
+            return x
+        }else
+        {
+            return x-360
+        }
+    },
+    /**
+     * Axis with angle magnitude (radians) [x, y, z]
+     * @param {q} quaternion 
+     * @returns vector 3
+     */
+    angleMagnitude:function(quaternion)
+    {
+        let q = quaternion.clone();
+        let angle = 2 * Math.acos(quaternion.w);
+        var axis = [0, 0, 0];
+        if (1 - (q.w * q.w) < 0.000001)
+        {
+            axis[0] = q.x;
+            axis[1] = q.y;
+            axis[2] = q.z;
+        }
+        else
+        {
+            // http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+            var s = Math.sqrt(1 - (q.w * q.w));
+            axis[0] = q.x / s;
+            axis[1] = q.y / s;
+            axis[2] = q.z / s;
+        }
+        return new THREE.Vector3(axis[0]*angle,axis[1]*angle,axis[2]*angle)
+    },
+    /**
+     * 
+     * @param {radians} x 
+     * @returns Angle
+     */
+    toAngle: function(x)
+    {
+        return x * 180 / Math.PI;
     },
        
    

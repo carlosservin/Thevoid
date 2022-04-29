@@ -32,7 +32,8 @@
       await navigator.xr.isSessionSupported("immersive-ar");
   if (isArSessionSupported) {
     document.getElementById("enter-ar").addEventListener("click", window.app.activateXR); 
-    gpsMain.SetCameraGps(); 
+    /** set coordinates */
+    gpsMain.SetGps(); 
   } else {
     onNoXRDevice();
   }
@@ -139,39 +140,36 @@ class App {
       this.camera.projectionMatrix.fromArray(view.projectionMatrix);
       this.camera.updateMatrixWorld(true);   
       
-      
+      /**update html elements that are open */
       gpsMain.updatePolygonsTxt(view.transform.inverse.matrix,view.projectionMatrix,pose); 
-      gpsMain.pose = pose;                                                                                                                
-      gpsMain.updateRotarionCamera(view.transform.matrix)                                                                                                                
-      gpsMain.updateIconInfo(pose);
+      /**update the camera rotation with respect to the heading */
+      gpsMain.updateCameraRotation(view.transform.matrix)     
+      /** update buttons to show polygon information*/                                                                                                           
+      gpsMain.updateInfoIcon(pose);
 
-      /*
-      ray cast*/
-
-        this.raycaster.setFromCamera( pointer, this.camera );
-        // const intersects = this.raycaster.intersectObjects( gpsMain.pivotePoligono.children );
-        const intersects = this.raycaster.intersectObjects( gpsMain.iconInfoP );
-        // console.log (pointer)
-        if (intersects.length>0)
-        {
-          if (this.INTERSECTED != intersects[0].object)
-          {         
-            if (this.INTERSECTED)
-            {
-              this.INTERSECTED.scale.set(2,2,2)   
-            }   
-            this.INTERSECTED = intersects[ 0 ].object;          
-            this.INTERSECTED.scale.set(2,2,2) 
+      /**ray caster */
+      this.raycaster.setFromCamera( pointer, this.camera );
+      const intersects = this.raycaster.intersectObjects( gpsMain.iconInfoP );
+      if (intersects.length>0)
+      {
+        if (this.INTERSECTED != intersects[0].object)
+        {         
+          if (this.INTERSECTED)
+          {
+            this.INTERSECTED.scale.set(2,2,2)   
+          }   
+          this.INTERSECTED = intersects[ 0 ].object;          
+          this.INTERSECTED.scale.set(2,2,2) 
+        }
+      }
+      else
+      {
+          if (this.INTERSECTED)
+          {
+            this.INTERSECTED.scale.set(1,1,1)   
           }
-        }
-        else
-        {
-            if (this.INTERSECTED)
-            {
-              this.INTERSECTED.scale.set(1,1,1)   
-            }
-            this.INTERSECTED = null;
-        }
+          this.INTERSECTED = null;
+      }
 
       /** Render the scene with THREE.WebGLRenderer. */
       this.renderer.render(this.scene, this.camera)
@@ -194,26 +192,19 @@ class App {
     this.renderer.autoClear = false;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    /** Initialize our demo scene. */
-    // this.scene = DemoUtils.createCubeScene();
-    //this.scene = DemoUtils.createLitScene();          
+        
     this.scene =gpsMain.createLitScene();
-    // this.reticle = new Reticle();
-    // this.scene.add(this.reticle);
+
 
     /** We'll update the camera matrices directly from API, so
      * disable matrix auto updates so three.js doesn't attempt
      * to handle the matrices independently. */
     this.camera = new THREE.PerspectiveCamera();
     this.camera.matrixAutoUpdate = false;
-
+    /**load polygons from the api */
     gpsMain._loadVertexPolygon();
-    gpsMain.camera = this.camera;    
-    gpsMain.crearcuboReferencia(this.scene)
-    // this.reloj = new THREE.Clock()
-    // this.time=0;
-    // this.floor =0;
+    /**create reference 3d objects */
+    gpsMain.createReference3DObjects(this.scene)
     this.raycaster = new THREE.Raycaster();
     this.INTERSECTED;
     // btn restart
@@ -223,13 +214,13 @@ class App {
     
   }
 
-  /** Place a sunflower when the screen is tapped. */
+  /** activate information when the raycaster collides with an information button and the screen is pressed */
   onSelect = () => {
     if (this.INTERSECTED != null)
     {
       if (!this.INTERSECTED.parent.openInfo)
       {
-        console.log(this.INTERSECTED)
+        /**open information */
         gpsMain.openElemen(this.INTERSECTED.parent.parent);
         this.INTERSECTED.visible = false;
         this.INTERSECTED.position.set(50,50,50)//mandarlo a otro lugar
