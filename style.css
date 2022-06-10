@@ -1,0 +1,132 @@
+body {
+  margin: 0;
+}
+#container {
+  position: absolute;  /* makes this the origin of its children */
+  /* width: 100vw; */
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  display: block;
+  top : 0px;
+  left:0px
+}
+
+#labels {
+  position: absolute;  /* let us position ourself inside the container */
+  z-index: 0;          /* make a new stacking context so children don't sort with rest of page */
+  left: 0;             /* make our position the top left of the container */
+  top: 0;
+  color: rgb(0, 0, 0);
+  
+}
+#labels>div {
+  white-space: nowrap;
+  position: absolute;  /* let us position them inside the container */
+  left: 0;             /* make their default position the top left of the container */
+  top: 0;
+  font-size: large;
+  user-select: none;   /* don't let the text get selected */
+  background-color:rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  border: 10px solid rgba(255, 255, 255, 0);
+}
+
+.button {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  color: rgb(0, 0, 0);  
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;  
+  cursor: pointer;
+}
+/* no move */
+.buttonCloseLabel
+{
+  top: 0px;
+  /* bottom: 0px; */
+  transform-origin: center center; 
+  left: calc(50% - 15px);
+  position:absolute;
+  margin-top: -45px;
+
+  font-size: 24px;
+  width: 30px;
+  height: 30px;
+  background-image: url('Texture/close.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-color: rgba(255, 255, 255, 0.0);
+
+}
+/* no move */
+.buttonUrl
+{
+  background-color: #4482c3; /* blue */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+.restart
+{
+  background-image: url('Texture/close.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0px;
+  right: 0px;
+  position:absolute;
+  font-size: 26px;
+  width: 32px;
+  height: 32px;
+  display: none;
+  margin-top: 15px;
+  margin-right: 15px;
+  z-index: 11;
+}
+#crosshairs
+{
+  position: absolute;
+  top: 50%;
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  background-color: #ff8000e6; 
+  border-radius: 50%;
+  display: inline-block;
+  border: 2px solid rgb(0, 0, 0);
+  z-index: 1;
+  display: none;
+}
+.message
+{
+  position: absolute;
+  top: 50%;
+  width: 80%;
+  /* height: 50%; */
+  left: 50%;
+  z-index: 2;
+  background-color: #ffffffdc; 
+  border-radius: 5%;  
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: none;
+
+}
+
+div {
+  /* font-family: "Lilita one" !important; */
+  font-family: "Sitka Text",Georgia, Cambria, Calibri;
+  }
+
+

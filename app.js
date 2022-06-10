@@ -1,0 +1,237 @@
+/*
+ * Copyright 2021 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the 'License');
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an 'AS IS' BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+  let pointer = new THREE.Vector2();
+  function onTouchstart( event ) {  
+    gpsMain.touch = true;
+    
+  }
+  function onTouchend( event ) {
+    gpsMain.touch = false;
+  }
+
+/**
+ * Query for WebXR support. If there's no support for the `immersive-ar` mode,
+ * show an error.
+ */
+(async function() {
+  const isArSessionSupported =
+      navigator.xr &&
+      navigator.xr.isSessionSupported &&
+      await navigator.xr.isSessionSupported("immersive-ar");
+  if (isArSessionSupported) {
+    document.getElementById("enter-ar").addEventListener("click", window.app.activateXR); 
+    /** set coordinates */
+    gpsMain.SetGps(); 
+  } else {
+    onNoXRDevice();
+  }
+})();
+
+/**
+ * Container class to manage connecting to the WebXR Device API
+ * and handle rendering on every frame.
+ */
+class App {
+  /**
+   * Run when the Start AR button is pressed.
+   */
+  activateXR = async () => {
+    try {
+      /** Initialize a WebXR session using "immersive-ar". */
+      // this.xrSession = await navigator.xr.requestSession("immersive-ar");
+      /** Alternatively, initialize a WebXR session using extra required features. */
+      this.xrSession = await navigator.xr.requestSession("immersive-ar", {
+        requiredFeatures: ['hit-test', 'dom-overlay'],
+        domOverlay: { root: document.body }
+      });
+
+      /** Create the canvas that will contain our camera's background and our virtual scene. */
+      this.createXRCanvas();
+
+      /** With everything set up, start the app. */
+      await this.onSessionStarted();                          
+    } catch(e) {
+      console.log(e);
+      onNoXRDevice();                                     
+    }
+  }
+
+  /**
+   * Add a canvas element and initialize a WebGL context that is compatible with WebXR.
+   */
+  createXRCanvas() {    
+    this.canvas = document.createElement("canvas");
+    //document.getElementById("container").appendChild(this.canvas)
+    document.body.appendChild(this.canvas);
+    this.gl = this.canvas.getContext("webgl", {xrCompatible: true});
+
+    this.xrSession.updateRenderState({
+      baseLayer: new XRWebGLLayer(this.xrSession, this.gl)
+    });
+  }
+
+  /**
+   * Called when the XRSession has begun. Here we set up our three.js
+   * renderer, scene, and camera and attach our XRWebGLLayer to the
+   * XRSession and kick off the render loop.
+   */
+  onSessionStarted = async () => {
+    /** Add the `ar` class to our body, which will hide our 2D components. */
+    document.body.classList.add('ar');
+
+    /** To help with working with 3D on the web, we'll use three.js. */
+    this.setupThreeJs();
+
+    /** Setup an XRReferenceSpace using the "local" coordinate system. */
+     this.localReferenceSpace = await this.xrSession.requestReferenceSpace('local');      
+
+    /** Create another XRReferenceSpace that has the viewer as the origin. */
+    this.viewerSpace = await this.xrSession.requestReferenceSpace('viewer');                
+
+    /** Perform hit testing using the viewer as origin. */
+    // this.hitTestSource = await this.xrSession.requestHitTestSource({ space: this.viewerSpace });
+    /** Start a rendering loop using this.onXRFrame. */
+    this.xrSession.requestAnimationFrame(this.onXRFrame);
+                                                                                
+    this.xrSession.addEventListener("select", this.onSelect);
+
+    window.addEventListener( 'touchstart', onTouchstart );
+    window.addEventListener( 'touchend', onTouchend );
+    window.addEventListener( 'touchmove', ontouchmove);
+  }
+
+  /**
+   * Called on the XRSession's requestAnimationFrame.
+   * Called with the time and XRPresentationFrame.
+   */
+  onXRFrame = (time, frame) => {
+    /** Queue up the next draw request. */
+     this.xrSession.requestAnimationFrame(this.onXRFrame);
+
+    /** Bind the graphics framebuffer to the baseLayer's framebuffer. */
+     const framebuffer = this.xrSession.renderState.baseLayer.framebuffer
+     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, framebuffer)
+     this.renderer.setFramebuffer(framebuffer);
+
+    /** Retrieve the pose of the device.
+     * XRFrame.getViewerPose can return null while the session attempts to establish tracking. */
+     const pose = frame.getViewerPose(this.localReferenceSpace);
+    if (pose) {
+      /** In mobile AR, we only have one view. */
+      const view = pose.views[0];                                                                     
+    
+      const viewport = this.xrSession.renderState.baseLayer.getViewport(view);
+      this.renderer.setSize(viewport.width, viewport.height)
+    
+      /** Use the view's transform matrix and projection matrix to configure the THREE.camera. */
+      this.camera.matrix.fromArray(view.transform.matrix)
+      this.camera.projectionMatrix.fromArray(view.projectionMatrix);
+      this.camera.updateMatrixWorld(true);   
+      
+      /**update html elements that are open */
+      gpsMain.updatePolygonsTxt(view.transform.inverse.matrix,view.projectionMatrix,pose); 
+      /**update the camera rotation with respect to the heading */
+      gpsMain.updateCameraRotation(view.transform.matrix)     
+      /** update buttons to show polygon information*/                                                                                                           
+      gpsMain.updateInfoIcon(pose);
+
+      /**ray caster */
+      this.raycaster.setFromCamera( pointer, this.camera );
+      const intersects = this.raycaster.intersectObjects( gpsMain.iconInfoP );
+      if (intersects.length>0)
+      {
+        if (this.INTERSECTED != intersects[0].object)
+        {         
+          if (this.INTERSECTED)
+          {
+            this.INTERSECTED.scale.set(2,2,2)   
+          }   
+          this.INTERSECTED = intersects[ 0 ].object;          
+          this.INTERSECTED.scale.set(2,2,2) 
+        }
+      }
+      else
+      {
+          if (this.INTERSECTED)
+          {
+            this.INTERSECTED.scale.set(1,1,1)   
+          }
+          this.INTERSECTED = null;
+      }
+
+      /** Render the scene with THREE.WebGLRenderer. */
+      this.renderer.render(this.scene, this.camera)
+    }
+  }
+
+  /**
+   * Initialize three.js specific rendering code, including a WebGLRenderer,
+   * a demo scene, and a camera for viewing the 3D content.
+   */
+  setupThreeJs() {
+    /** To help with working with 3D on the web, we'll use three.js.
+     * Set up the WebGLRenderer, which handles rendering to our session's base layer. */
+    this.renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      preserveDrawingBuffer: true,
+      canvas: this.canvas,
+      context: this.gl
+    });
+    this.renderer.autoClear = false;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+    this.scene =gpsMain.createLitScene();
+
+
+    /** We'll update the camera matrices directly from API, so
+     * disable matrix auto updates so three.js doesn't attempt
+     * to handle the matrices independently. */
+    this.camera = new THREE.PerspectiveCamera();
+    this.camera.matrixAutoUpdate = false;
+    /**load polygons from the api */
+    gpsMain._loadVertexPolygon();
+    /**create reference 3d objects */
+    gpsMain.createReference3DObjects(this.scene)
+    this.raycaster = new THREE.Raycaster();
+    this.INTERSECTED;
+    // btn restart
+    let btnRestart =document.getElementById('restart');
+    btnRestart.style.display = 'block';
+  
+    
+  }
+
+  /** activate information when the raycaster collides with an information button and the screen is pressed */
+  onSelect = () => {
+    if (this.INTERSECTED != null)
+    {
+      if (!this.INTERSECTED.parent.openInfo)
+      {
+        /**open information */
+        gpsMain.openElemen(this.INTERSECTED.parent.parent);
+        this.INTERSECTED.visible = false;
+        this.INTERSECTED.position.set(50,50,50)//mandarlo a otro lugar
+        this.INTERSECTED.scale.set(0,0,0)
+      }
+    }
+  }
+
+
+}
+
+
+
+window.app = new App();
