@@ -9,7 +9,7 @@
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600></canvas>
+      <canvas id="unity-canvas" width=1920 height=1080></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -27,11 +27,11 @@
     </div>
     <script>
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/webGL.loader.js";
+      var loaderUrl = buildUrl + "/Web.loader.js";
       var config = {
-        dataUrl: buildUrl + "/webGL.data.gz",
-        frameworkUrl: buildUrl + "/webGL.framework.js.gz",
-        codeUrl: buildUrl + "/webGL.wasm.gz",
+        dataUrl: buildUrl + "/Web.data.gz",
+        frameworkUrl: buildUrl + "/Web.framework.js.gz",
+        codeUrl: buildUrl + "/Web.wasm.gz",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "TheVoidPhoton",
@@ -62,8 +62,8 @@
           mobileWarning.style.display = "none";
         }, 5000);
       } else {
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+        canvas.style.width = "1920px";
+        canvas.style.height = "1080px";
       }
       loadingBar.style.display = "block";
 
