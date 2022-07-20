@@ -52,7 +52,18 @@
                     >
                 </a-entity> -->
             </a-nft>
-
+        <script>
+                //hack para url dinámica -- solo se habilita cuando vaya a servidor
+                function setUrl(active)
+                {
+                    if(active == true)
+                    {
+                        var urlCompleta = window.location.href + "/Fragmento1/Bimbo"
+                        document.querySelector("a-nft").setAttribute("url", urlCompleta)
+                    }
+                }
+                setUrl(true)
+            </script>
             <a-entity camera></a-entity>
         </a-scene>
         <div id="letreroEscaneo" style = 'display: none;
