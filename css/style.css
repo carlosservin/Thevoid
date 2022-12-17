@@ -339,7 +339,7 @@ button {
      padding-bottom: 45px;
      font-weight: bold;
      text-transform: uppercase;
-     letter-spacing: 85px;
+     letter-spacing: 45px;
      text-align: center;
 }
 
@@ -349,7 +349,7 @@ button {
      font-size: 56px;
      line-height: 50px;
      text-transform: uppercase;
-     letter-spacing: 90px;
+     letter-spacing: 25px;
 }
 
 .text-bg ul.social_team {
